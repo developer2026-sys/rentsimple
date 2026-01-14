@@ -11,7 +11,7 @@ const FIXED_WARRANTY_FEE = 15;
 function RenterDashboard() {
   const navigate = useNavigate();
   
-  // State management
+ 
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,7 +20,7 @@ function RenterDashboard() {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [processingReject, setProcessingReject] = useState(false);
 
-  // Fetch dashboard data on component mount
+  
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -190,7 +190,7 @@ function RenterDashboard() {
     );
   }
 
- // Calculate stats from actual data arrays
+
 const activeRentalsCount = dashboardData?.activeRentals?.length || 0;
 const pendingApprovalsCount = dashboardData?.pendingApprovals?.length || 0;
 const completedOrdersCount = dashboardData?.completedOrders?.length || 0;
@@ -198,13 +198,13 @@ const completedOrdersCount = dashboardData?.completedOrders?.length || 0;
 const stats = [
   { 
     label: 'Active Rentals', 
-    value: activeRentalsCount, // Use calculated count from array
+    value: activeRentalsCount, 
     icon: Package, 
     color: 'bg-blue-500' 
   },
   { 
     label: 'Pending Approvals', 
-    value: pendingApprovalsCount, // Use calculated count from array
+    value: pendingApprovalsCount, 
     icon: Clock, 
     color: 'bg-yellow-500' 
   },
@@ -222,7 +222,7 @@ const stats = [
   },
   { 
     label: 'Completed Rentals', 
-    value: completedOrdersCount, // Use calculated count from array
+    value: completedOrdersCount, 
     icon: CheckCircle, 
     color: 'bg-purple-500' 
   }
@@ -280,14 +280,14 @@ const stats = [
       status: receipt.status || 'Unknown',
       receiptNumber: receipt.receiptNumber || receipt.rental?.orderNumber,
   
-      // Optional: if you have credits or service fee
+     
       vendorFee: receipt.vendorFee || 0,
       subtotal: receipt.subtotal || 0,
       creditsApplied: receipt.creditsApplied || 0,
   
-      // Delivery & installation info
-      deliveryType: receipt.deliveryType || 'delivery', // default delivery
-      installationType: receipt.installationType || 'professional', // default professional
+    
+      deliveryType: receipt.deliveryType || 'delivery',
+      installationType: receipt.installationType || 'professional',
     };
   }) || [];
   
@@ -327,7 +327,7 @@ const stats = [
         setShowRejectModal(false);
         setRejectReason('');
         setSelectedOrderId(null);
-        fetchDashboardData(); // Refresh the dashboard
+        fetchDashboardData(); 
       
     } catch (err) {
       console.error('Error rejecting delivery:', err);
@@ -355,7 +355,7 @@ const stats = [
   
      
         toast.success('Delivery & Installation approved successfully!',{containerId:"renterDashboard"});
-        fetchDashboardData(); // Refresh the dashboard
+        fetchDashboardData(); 
       
     } catch (err) {
       console.error('Error approving delivery:', err);

@@ -20,7 +20,7 @@ export default function App() {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  // Use actual navigation and location hooks
+ 
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -47,7 +47,7 @@ export default function App() {
     e.preventDefault();
   
     try {
-      // Validation
+   
       if (formData.name.length === 0 && activeTab !== "login") {
         toast.error("Please enter your name", { containerId: "appPage" });
         return;
@@ -71,15 +71,14 @@ export default function App() {
       
       console.log(response.data);
       toast.dismiss();
-      toast.success(response.data.message,{containerId:"appPageauthform"});
+      toast.success("User logged in sucessfully");
       
-      // Store authentication data
+     
       localStorage.setItem("token", response.data.token);
       localStorage.setItem('userId', response.data.userId);
       localStorage.removeItem('cartItems');
       
-      // Navigate to appliance page
-      navigate('/appliance');
+    navigate('/appliance')
       
     } catch (e) {
       console.log(e);
@@ -114,7 +113,7 @@ export default function App() {
     }
   };
 
-  // Auth Form View
+
   if (showAuthForm) {
     return (
       <>
@@ -122,7 +121,7 @@ export default function App() {
         <div className="min-h-screen bg-[#f3f4e6] flex flex-col items-center justify-center p-4">
           <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl bg-white rounded-lg shadow-lg overflow-hidden mx-auto">
             
-            {/* Header with Logo */}
+           
             <div className="bg-white px-4 sm:px-6 md:px-8 pt-6 sm:pt-8 pb-4 sm:pb-6 text-center">
               <div className="mb-3 sm:mb-4">
                 <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-[#024a47] rounded-lg mb-2">
@@ -139,14 +138,14 @@ export default function App() {
               <p className="text-sm sm:text-base md:text-lg lg:text-xl text-[#024a47]">Rent-to-Own Appliance</p>
             </div>
 
-            {/* Create Account / Log In Title */}
+       
             <div className="px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6">
               <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-[#024a47] text-center">
                 Create Account / Log In
               </h2>
             </div>
 
-            {/* Tab Toggle */}
+           
             <div className="px-4 sm:px-6 md:px-8 pb-4 sm:pb-6">
               <div className="bg-[#024a47] rounded-lg p-1 flex">
                 <button
@@ -172,7 +171,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Form Section */}
+           
             <form onSubmit={handleSubmit} className="px-4 sm:px-6 lg:px-8">
               <div className="flex items-center mb-4 sm:mb-6">
                 <div className="flex-grow h-px bg-gray-300"></div>
@@ -270,7 +269,6 @@ export default function App() {
                     {activeTab === "login" ? "Log In" : "Sign Up"}
                   </button>
 
-                  {/* Vendor Login Button */}
                 
 
                   <button
@@ -289,13 +287,13 @@ export default function App() {
     );
   }
 
-  // Initial Landing View
+
   return (
     <>
       <ToastContainer containerId={"appPage"} />
       <div className="min-h-screen bg-[#f3f4e6] flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-md space-y-6">
-          {/* Logo and Title */}
+      
           <div className="text-center mb-12">
             <div className="mb-6">
               <div className="inline-flex items-center justify-center w-20 h-20 bg-[#024a47] rounded-2xl mx-auto">
@@ -312,7 +310,7 @@ export default function App() {
             <p className="text-xl text-[#024a47] mt-2">Rent-to-Own Appliance</p>
           </div>
 
-          {/* Action Buttons */}
+         
           <div className="space-y-4">
             {!showAuthButtons ? (
               <>

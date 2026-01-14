@@ -366,7 +366,7 @@ socket.on('newTicket', async (data) => {
 
 
   <div className="h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
+      
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
@@ -381,11 +381,11 @@ socket.on('newTicket', async (data) => {
         </div>
       </div>
 
-      {/* Main Chat Container */}
+    
       <div className="flex-1 flex overflow-hidden">
-        {/* Contacts List */}
+     
         <div className={`${isMobileView ? (showContactList ? 'w-full' : 'hidden') : 'w-80'} bg-white border-r border-gray-200 flex flex-col`}>
-          {/* Search and Filter */}
+          
           <div className="p-4 border-b border-gray-200 space-y-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -434,7 +434,7 @@ socket.on('newTicket', async (data) => {
             </div>
           </div>
 
-          {/* Contacts List */}
+       
           <div className="flex-1 overflow-y-auto">
             {loading ? (
               <div className="flex items-center justify-center h-full">
@@ -501,11 +501,11 @@ socket.on('newTicket', async (data) => {
           </div>
         </div>
 
-        {/* Chat Area */}
+    
         <div className={`${isMobileView ? (showContactList ? 'hidden' : 'w-full') : 'flex-1'} flex flex-col bg-gray-50`}>
           {selectedContact ? (
             <>
-              {/* Chat Header */}
+           
               <div className="bg-white border-b border-gray-200 px-6 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
@@ -541,7 +541,6 @@ socket.on('newTicket', async (data) => {
                 </div>
               </div>
 
-              {/* Messages Area */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 {messages.map(message => (
                   <div
@@ -569,7 +568,7 @@ socket.on('newTicket', async (data) => {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Message Input */}
+           
               <div className="bg-white border-t border-gray-200 p-4">
   {selectedContact?.status === 'closed' ? (
     <div className="text-center py-4">

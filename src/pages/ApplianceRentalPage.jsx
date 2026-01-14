@@ -121,15 +121,14 @@ setNewMessagesLength(response.data.messagesLength)
       
     }
   }
-  // Apply filters whenever appliances, category, or price range changes
+  
   useEffect(() => {
     applyFilters();
   }, [appliances, selectedCategory, selectedPriceRange]);
 
-  // 🚀 NEW: Sort appliances by boost status and amount
   const sortByBoost = (appliancesList) => {
     return [...appliancesList].sort((a, b) => {
-      // Check if boost is active (not expired)
+     
       const now = new Date();
       const aBoostActive = a.visibility?.isBoosted && 
                           a.visibility?.boostEndDate && 
@@ -137,17 +136,16 @@ setNewMessagesLength(response.data.messagesLength)
       const bBoostActive = b.visibility?.isBoosted && 
                           b.visibility?.boostEndDate && 
                           new Date(b.visibility.boostEndDate) > now;
-      
-      // Get boost amounts (default to 0 if not boosted or expired)
+     
       const aBoostAmount = aBoostActive ? (a.visibility?.boostAmount || 0) : 0;
       const bBoostAmount = bBoostActive ? (b.visibility?.boostAmount || 0) : 0;
       
-      // Sort by boost amount (highest first)
+     
       if (bBoostAmount !== aBoostAmount) {
         return bBoostAmount - aBoostAmount;
       }
       
-      // If boost amounts are equal, sort by creation date (newest first)
+     
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
   };
@@ -155,14 +153,13 @@ setNewMessagesLength(response.data.messagesLength)
   const applyFilters = () => {
     let filtered = [...appliances];
 
-    // Apply category filter
     if (selectedCategory) {
       filtered = filtered.filter(appliance => {
         const category = appliance.category.toLowerCase();
         const title = appliance.title.toLowerCase();
         const searchTerm = selectedCategory.toLowerCase();
         
-        // Handle "Washer & Dryer" specially
+     
         if (searchTerm === 'washer & dryer') {
           return (category.includes('washer') && category.includes('dryer')) ||
                  (title.includes('washer') && title.includes('dryer'));
@@ -172,7 +169,7 @@ setNewMessagesLength(response.data.messagesLength)
       });
     }
 
-    // Apply price filter
+   
     if (selectedPriceRange) {
       filtered = filtered.filter(appliance => {
         const price = appliance.pricing.rentPrice;
@@ -180,7 +177,7 @@ setNewMessagesLength(response.data.messagesLength)
       });
     }
 
-    // 🚀 Sort by boost amount after filtering
+  
     filtered = sortByBoost(filtered);
 
     setFilteredAppliances(filtered);
@@ -211,11 +208,11 @@ setNewMessagesLength(response.data.messagesLength)
 
   const handleSelect = (appliance) => {
     try {
-      // Add appliance ID to URL
+    
       searchParams.set('appliance', appliance._id);
       setSearchParams(searchParams);
       
-      // Check if it's a TV appliance
+     
       if (appliance.title.toLowerCase().includes('tv')) {
         setSelectedComboAppliance(appliance);
         setshowPlugpopup(true);
@@ -223,7 +220,7 @@ setNewMessagesLength(response.data.messagesLength)
         return;
       }
       
-      // Check if it's a combo appliance (dryer with plug options)
+      
       if (appliance.combo === true) {
         setSelectedComboAppliance(appliance);
         setShowComboPopup(true);
@@ -231,7 +228,7 @@ setNewMessagesLength(response.data.messagesLength)
         return;
       }
       
-      // For regular appliances (not TV, not combo)
+     
       setSelectedComboAppliance(appliance);
       setshowPlugpopup(false);
       setShowComboPopup(true);
@@ -265,9 +262,6 @@ setNewMessagesLength(response.data.messagesLength)
   };
 
 
-  // Track when a user views a listing
-
-
 
   const getProducts = async () => {
     try {
@@ -280,7 +274,7 @@ setNewMessagesLength(response.data.messagesLength)
       const listenings = response.data.listenings || [];
       console.log(listenings)
       console.log("LIstenings")
-      // 🚀 Sort by boost immediately when fetching
+   
       const sortedListenings = sortByBoost(listenings);
       setUser(response.data.user)
       setAppliances(sortedListenings);
@@ -354,14 +348,14 @@ setNewMessagesLength(response.data.messagesLength)
     setIsRejecting(true);
     
     try {
-      // Changed: Use listing ID instead of request ID
+    
       const listingId = applianceToReject._id;
       
       let response = await axios.patch(`${BASE_URL}/rejectOffer/${listingId}`, {
         rejectionReason: finalReason
       });
   
-      // Update requests state
+    
       setRequests(prev =>
         prev.map(req =>
           req.listing === applianceToReject._id
@@ -370,7 +364,7 @@ setNewMessagesLength(response.data.messagesLength)
         )
       );
 
-      // Remove the rejected listing from appliances and filteredAppliances
+    
       setAppliances(prev => prev.filter(app => app._id !== listingId));
       setFilteredAppliances(prev => prev.filter(app => app._id !== listingId));
   
@@ -392,11 +386,7 @@ setNewMessagesLength(response.data.messagesLength)
   
   };
   
-  // Track views for all displayed appliances
 
-
-  // Get all rejection reasons for a specific listing
-// Get all rejection reasons for a specific listing
 const getRejectionReasons = (listingId) => {
   return requests
     .filter(req => req.listing === listingId && req.status === 'rejected')
@@ -406,14 +396,14 @@ const getRejectionReasons = (listingId) => {
     }));
 };
 
-  // 🎨 NEW: Helper to check if boost is active
+
   const isBoostActive = (appliance) => {
     if (!appliance.visibility?.isBoosted) return false;
     if (!appliance.visibility?.boostEndDate) return false;
     return new Date(appliance.visibility.boostEndDate) > new Date();
   };
 
-  // 🎨 NEW: Helper to get boost badge color based on amount
+  
   const getBoostBadgeColor = (boostAmount) => {
     if (boostAmount >= 100) return 'bg-gradient-to-r from-yellow-400 to-orange-500';
     if (boostAmount >= 50) return 'bg-gradient-to-r from-blue-500 to-purple-600';
@@ -428,7 +418,7 @@ const getRejectionReasons = (listingId) => {
 
     useEffect(() => {
       displayAppliances.forEach(appliance => {
-        // Only track if not already viewed in this session
+       
         if (!viewedListings.has(appliance._id)) {
           trackView(appliance._id);
           setViewedListings(prev => new Set(prev).add(appliance._id));

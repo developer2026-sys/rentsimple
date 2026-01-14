@@ -26,7 +26,7 @@ function UserProfile() {
 const [editingRequestId, setEditingRequestId] = useState(null);
 const [editAddressData, setEditAddressData] = useState({});
 
-  // Form states
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -34,7 +34,7 @@ const [editAddressData, setEditAddressData] = useState({});
   });
   const [savingAddress, setSavingAddress] = useState(false);
   
-  // Password change states
+  
   const [showPasswordSection, setShowPasswordSection] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
@@ -53,7 +53,7 @@ const [editAddressData, setEditAddressData] = useState({});
     fetchUserRequests();
   }, []);
 
-  // Payment form component with Stripe access
+  
 function PaymentForm({ onSave, onCancel, saving }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -88,19 +88,19 @@ function PaymentForm({ onSave, onCancel, saving }) {
       return;
     }
   
-    // Create payment method - Stripe will handle validation
+
     const { error, paymentMethod } = await stripe.createPaymentMethod({
       type: 'card',
       card: cardElement,
     });
   
     if (error) {
-      // This will catch empty fields and validation errors
+     
       toast.error(error.message, {containerId:"userProfile"});
       return;
     }
   
-    // Only call save if payment method was successfully created
+  
     if (paymentMethod) {
       onSave(paymentMethod);
     } else {
@@ -210,7 +210,7 @@ function PaymentForm({ onSave, onCancel, saving }) {
         mobile: userData.mobile || ''
       });
    
-      // Set payment data if exists
+    
       if (data.paymentMethod) {
         setPaymentData({
           cardNumber: `**** **** **** ${data.paymentMethod.last4}`,
@@ -289,7 +289,7 @@ function PaymentForm({ onSave, onCancel, saving }) {
         throw new Error(data.error || 'Failed to update address');
       }
       
-      // Update local state
+      
       setRequests(prev => prev.map(req => 
         req._id === requestId 
           ? { ...req, deliveryAddress: addressData }
@@ -312,9 +312,6 @@ function PaymentForm({ onSave, onCancel, saving }) {
   
   
 
-
-
-// In fetchUserRequests, update to:
 const fetchUserRequests = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -330,10 +327,10 @@ const fetchUserRequests = async () => {
       console.log('Requests:', data);
   
 
-        // Filter only delivery requests
+      
         const deliveryRequests = data.requests.filter(req => req.deliveryType === 'delivery');
-        console.log('Delivery Requests:', deliveryRequests); // ADD THIS
-        console.log('Delivery Requests Length:', deliveryRequests.length); // ADD THIS
+        console.log('Delivery Requests:', deliveryRequests); 
+        console.log('Delivery Requests Length:', deliveryRequests.length);
         setRequests(deliveryRequests);
    
     } catch (err) {
@@ -368,7 +365,7 @@ const fetchUserRequests = async () => {
 
   const handleSaveProfile = async () => {
     try {
-      // Validation
+
       if (!formData.name.trim()) {
         toast.info('Name is required',{containerId:"userProfile"});
         return;
@@ -382,14 +379,14 @@ const fetchUserRequests = async () => {
         return;
       }
 
-      // Email validation
+      
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email)) {
       toast.info('Please enter a valid email address',{containerId:"userProfile"});
         return;
       }
 
-      // Mobile validation (basic)
+    
       if (formData.mobile.length < 10) {
         toast.info('Please enter a valid mobile number',{containerId:"userProfile"});
         return;
@@ -414,7 +411,7 @@ const fetchUserRequests = async () => {
         throw new Error(data.error || 'Failed to update profile');
       }
       
-      // Update user state with the updated data
+     
       setUser(prev => ({
         ...prev,
         ...formData
@@ -441,7 +438,7 @@ const fetchUserRequests = async () => {
 
   const handleChangePassword = async () => {
     try {
-      // Validation
+     
       if (!passwordData.currentPassword) {
         toast.info('Current password is required',{containerId:"userProfile"});
         return;
@@ -489,10 +486,10 @@ if (!response.ok) {
   } else {
     throw new Error(data.error || 'Failed to change password');
   }
-  return; // Important: stop execution here
+  return; 
 }
 
-// Only execute this if response is ok
+
 toast.success('Password changed successfully!',{containerId:"userProfile"});
 setPasswordData({
   currentPassword: '',
@@ -514,8 +511,7 @@ setShowPasswordSection(false);
       email: user.email || '',
       mobile: user.mobile || ''
     });
-    // Set payment data if exists
-s
+   
     setEditMode(false);
   };
 
@@ -527,17 +523,17 @@ s
     const { name, value } = e.target;
     
     if (name === 'cardNumber') {
-      // Format card number with spaces
+   
       const formatted = value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
       if (formatted.replace(/\s/g, '').length <= 16) {
         setPaymentData(prev => ({ ...prev, [name]: formatted }));
       }
     } else if (name === 'expiryDate') {
-      // Format expiry date as MM/YY
+    
       const formatted = value.replace(/\D/g, '').replace(/(\d{2})(\d{0,2})/, '$1/$2').substr(0, 5);
       setPaymentData(prev => ({ ...prev, [name]: formatted }));
     } else if (name === 'cvc') {
-      // Only allow 3-4 digits
+   
       if (value.length <= 4 && /^\d*$/.test(value)) {
         setPaymentData(prev => ({ ...prev, [name]: value }));
       }
@@ -571,7 +567,7 @@ s
         throw new Error(data.error || 'Failed to save payment method');
       }
       
-      // Update local state with masked card number
+     
       setPaymentData({
         cardNumber: `**** **** **** ${data.lastFourDigits}`,
         expiryDate: paymentData.expiryDate,
@@ -590,7 +586,7 @@ s
   };
   
   const handleCancelPaymentEdit = () => {
-    // Reset to original data
+   
     if (user?.paymentMethod) {
       setPaymentData({
         cardNumber: `**** **** **** ${user.paymentMethod.lastFourDigits}`,

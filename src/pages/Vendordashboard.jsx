@@ -9,7 +9,7 @@ import { toast, ToastContainer } from "react-toastify";
 function VendorDashboard() {
   const navigate = useNavigate();
   
-  // State management
+
   const [showStripePopup, setShowStripePopup] = useState(false);
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,7 +17,7 @@ function VendorDashboard() {
   const [stripeOnboardingData,setStripeOnboardingData]=useState()
   const [stripeLoading, setStripeLoading] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  // Fetch dashboard data on component mount
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -109,20 +109,20 @@ setShowSuccessPopup(false)
 
       const data = response.data;
 
-      // If already connected, close popup and refresh dashboard
+     
       if (data.alreadyConnected) {
         setStripeLoading(false);
         setShowStripePopup(false);
         toast.success('Your Stripe account is already connected!',{containerId:"vendorDashboard"});
-        fetchDashboardData(); // Refresh to update status
+        fetchDashboardData(); 
         return;
       }
 
-      // If onboarding URL exists, redirect IMMEDIATELY
+  
       if (data.onboardingUrl) {
-        // Redirect without waiting for state updates
+
         window.location.href = data.onboardingUrl;
-        // Note: Code below won't execute due to redirect, but kept for safety
+      
         return;
       }
 
@@ -216,7 +216,7 @@ setShowSuccessPopup(false)
   ];
 
   const recentListings = dashboardData?.recentListings?.map(listing => {
-    // Find the request once and reuse it
+   
     const relatedRequest = dashboardData?.requests?.find(
       request => request.listing?._id === listing._id || request.listing === listing._id
     );
@@ -228,8 +228,8 @@ setShowSuccessPopup(false)
       status: listing.status.charAt(0).toUpperCase() + listing.status.slice(1),
       boosted: listing.visibility?.isBoosted || false,
       image: listing.images?.[0]?.url,
-      deliveryType: listing.deliveryType, // From backend
-      request: relatedRequest, // Full request object if needed
+      deliveryType: listing.deliveryType, 
+      request: relatedRequest, 
       renterMobile: relatedRequest?.user?.mobile,
       renterId: relatedRequest?.user?._id
     };
@@ -240,7 +240,7 @@ setShowSuccessPopup(false)
 
   const handleRenewListing = async (listingId) => {
     try {
-      const token = localStorage.getItem('vendorToken'); // Changed from 'token' to 'vendorToken'
+      const token = localStorage.getItem('vendorToken'); 
       
       const response = await axios.post(
         `${BASE_URL}/renewListing`,
@@ -255,7 +255,7 @@ setShowSuccessPopup(false)
       if (response.data.success) {
         const updatedListing = response.data.listing;
         
-        // Update dashboardData instead of recentListings
+     
         setDashboardData(prevData => ({
           ...prevData,
           recentListings: prevData.recentListings.map(listing => {

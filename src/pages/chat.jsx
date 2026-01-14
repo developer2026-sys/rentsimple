@@ -15,34 +15,34 @@ const containsContactInfo = (text) => {
   
     const lowerText = text.toLowerCase();
   
-    // ✅ Strong and simple email pattern
+ 
     const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
     if (emailPattern.test(lowerText)) {
       return true;
     }
   
-    // ✅ Phone number patterns
+   
     const phonePatterns = [
-      /\b\d{10,}\b/, // 10+ consecutive digits
-      /\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/, // xxx-xxx-xxxx
-      /\(\d{3}\)\s?\d{3}[-.\s]?\d{4}/, // (xxx) xxx-xxxx
-      /\+\d{1,3}[-.\s]?\d{3,}/, // International
+      /\b\d{10,}\b/, 
+      /\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/, 
+      /\(\d{3}\)\s?\d{3}[-.\s]?\d{4}/,
+      /\+\d{1,3}[-.\s]?\d{3,}/, 
     ];
     for (const pattern of phonePatterns) {
       if (pattern.test(lowerText)) return true;
     }
   
-    // ✅ URL detection
+  
     if (lowerText.includes('http://') || lowerText.includes('https://') || lowerText.includes('www.')) {
       return true;
     }
   
-    // ✅ WhatsApp mentions
+   
     if (lowerText.includes('whatsapp') || lowerText.includes('wa.me')) {
       return true;
     }
   
-    // ✅ Common contact keywords (even without @)
+   
     const contactKeywords = [
       'gmail', 'yahoo', 'hotmail', 'outlook', 'email',
       'call me', 'text me', 'contact me'
@@ -77,7 +77,7 @@ const [loading, setLoading] = useState(true);
 const [showOptionsMenu, setShowOptionsMenu] = useState(false);
 const [downloadingConversation, setDownloadingConversation] = useState(false);
 
-  // Fetch conversations on mount
+  
   useEffect(() => {
     const initializeChat = async () => {
       const vendorIdFromUrl = await getCurrentVendor();
@@ -86,14 +86,14 @@ const [downloadingConversation, setDownloadingConversation] = useState(false);
     initializeChat();
   }, []);
 
-  // Update messages when conversation changes
+  
   useEffect(() => {
     if (selectedConversation && selectedConversation.vendor && selectedConversation.vendor._id) {
       fetchMessages(selectedConversation.vendor._id);
     }
   }, [selectedConversation?.vendor?._id]);
 
-  // Mark messages as seen when conversation is opened
+ 
   useEffect(() => {
     const markAsSeen = async () => {
       if (selectedConversation && selectedConversation.vendor && selectedConversation.vendor._id) {
@@ -104,25 +104,24 @@ const [downloadingConversation, setDownloadingConversation] = useState(false);
             }
           });
           
-          // Update local state to mark messages as read
+        
           setMessages(prevMessages => 
             prevMessages.map(msg => 
               msg.sentBy === 'vendor' ? { ...msg, read: true } : msg
             )
           );
           
-          // Update conversation unread count
+        
           setConversations(prevConvs =>
             prevConvs.map(conv =>
               conv.id === selectedConversation.id ? { ...conv, unreadCount: 0 } : conv
             )
           );
 
-          // Emit socket event to notify vendor
 if (socketRef?.socket) {
     socketRef.socket.emit('messagesSeen', {
       conversationId: selectedConversation.vendor._id,
-      userId: localStorage.getItem('userId'), // or get from your auth context
+      userId: localStorage.getItem('userId'),
       vendorId: selectedConversation.vendor._id,
       seenBy: 'user'
     });
@@ -137,23 +136,23 @@ if (socketRef?.socket) {
     markAsSeen();
   }, [selectedConversation?.vendor?._id]);
 
-  // Auto scroll to bottom
+  
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
 
-  // Socket event listeners
+  
 useEffect(() => {
     if (!socketRef?.socket) return;
   
     const socket = socketRef.socket;
   
-    // Listen for new messages
+   
 socket.on('newMessage', (data) => {
     console.log('New message received:', data);
     
-    // Only add message if it's for the current conversation
+   
     if (selectedConversation && 
         (data.conversationId === selectedConversation.vendor._id || 
          data.senderId === selectedConversation.vendor._id ||
@@ -173,7 +172,6 @@ socket.on('newMessage', (data) => {
   
       setMessages(prevMessages => [...prevMessages, newMsg]);
   
-      // Update conversation list
       setConversations(prevConvs =>
         prevConvs.map(conv =>
           conv.id === data.conversationId
@@ -182,8 +180,7 @@ socket.on('newMessage', (data) => {
         )
       );
     } else if (data.isNewConversation && data.sendBy === 'vendor' && data.vendor) {
-      // This is a new conversation initiated by vendor
-      // Check if we don't already have this conversation
+    
       setConversations(prevConvs => {
         const exists = prevConvs.some(conv => conv.id === data.senderId);
         if (!exists) {
@@ -198,7 +195,7 @@ socket.on('newMessage', (data) => {
           };
           return [newConversation, ...prevConvs];
         }
-        // Update unread count if conversation exists
+    
         return prevConvs.map(conv =>
           conv.id === data.conversationId
             ? { 
@@ -211,7 +208,7 @@ socket.on('newMessage', (data) => {
         );
       });
     } else {
-      // If message is from different conversation, update unread count
+   
       setConversations(prevConvs =>
         prevConvs.map(conv =>
           conv.id === data.conversationId || conv.id === data.senderId
@@ -226,57 +223,7 @@ socket.on('newMessage', (data) => {
       );
     }
   });
-    // Listen for new messages
-    // socket.on('newMessage', (data) => {
-    //     console.log('New message received:', data);
-        
-    //     // Only add message if it's for the current conversation
-    //     // Check both conversationId and senderId to handle new conversations
-    //     if (selectedConversation && 
-    //         (data.conversationId === selectedConversation.vendor._id || 
-    //          data.senderId === selectedConversation.vendor._id ||
-    //          data.receiverId === selectedConversation.vendor._id)) { // ADD THIS LINE
-          
-    //       const newMsg = {
-    //         id: data.id,
-    //         senderId: data.senderId,
-    //         receiverId: data.receiverId,
-    //         senderName: data.sendBy === 'user' ? 'You' : (selectedConversation.vendor.businessName || selectedConversation.vendor.name),
-    //         message: data.message,
-    //         image: data.image,
-    //         timestamp: new Date(data.timestamp),
-    //         read: data.read,
-    //         sentBy: data.sendBy
-    //       };
-      
-    //       setMessages(prevMessages => [...prevMessages, newMsg]);
   
-    //     // Update conversation list
-    //     setConversations(prevConvs =>
-    //       prevConvs.map(conv =>
-    //         conv.id === data.conversationId
-    //           ? { ...conv, lastMessage: data.message, lastMessageTime: new Date(data.timestamp) }
-    //           : conv
-    //       )
-    //     );
-    //   } else {
-    //     // If message is from different conversation, update unread count
-    //     setConversations(prevConvs =>
-    //       prevConvs.map(conv =>
-    //         conv.id === data.conversationId
-    //           ? { 
-    //               ...conv, 
-    //               lastMessage: data.message, 
-    //               lastMessageTime: new Date(data.timestamp),
-    //               unreadCount: conv.unreadCount + 1 
-    //             }
-    //           : conv
-    //       )
-    //     );
-    //   }
-    // });
-  
-    // Listen for messages read
     socket.on('messagesRead', (data) => {
       console.log('Messages marked as read:', data);
       
@@ -289,10 +236,10 @@ socket.on('newMessage', (data) => {
       }
     });
   
-    // Listen for typing indicator
+
     socket.on('userTyping', (data) => {
       if (selectedConversation && data.conversationId === selectedConversation.vendor._id) {
-        // You can add a typing indicator state here
+        
         console.log('Vendor is typing:', data.isTyping);
       }
     });
@@ -309,7 +256,7 @@ socket.on('newMessage', (data) => {
         }
       });
       
-    // Cleanup
+    
     return () => {
       socket.off('newMessage');
       socket.off('messagesRead');
@@ -318,13 +265,13 @@ socket.on('newMessage', (data) => {
     };
   }, [selectedConversation, socketRef]);
 
-  // ⭐ NEW: Broadcast active conversation to server
+
 useEffect(() => {
   if (socketRef?.socket) {
     const userId = localStorage.getItem('userId');
     
     if (selectedConversation && selectedConversation.vendor && selectedConversation.vendor._id) {
-      // Tell server which conversation user is viewing
+      
       socketRef.socket.emit('setActiveConversation', {
         userId: userId,
         conversationId: selectedConversation.vendor._id
@@ -332,7 +279,7 @@ useEffect(() => {
       
       console.log(`✅ User ${userId} now viewing conversation with vendor ${selectedConversation.vendor._id}`);
     } else {
-      // Tell server user left the conversation
+      
       socketRef.socket.emit('setActiveConversation', {
         userId: userId,
         conversationId: null
@@ -341,8 +288,7 @@ useEffect(() => {
       console.log(`✅ User ${userId} left conversation`);
     }
   }
-  
-  // Cleanup when component unmounts
+
   return () => {
     if (socketRef?.socket) {
       const userId = localStorage.getItem('userId');
@@ -353,7 +299,7 @@ useEffect(() => {
     }
   };
 }, [selectedConversation?.vendor?._id, socketRef?.socket]);
-  // Connect socket on mount
+ 
 useEffect(() => {
     if (socketRef?.socket) {
       const userId = localStorage.getItem('userId'); 
@@ -370,7 +316,7 @@ useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Get current vendor from URL params
+ 
   const getCurrentVendor = async () => {
     try {
       let params = new URLSearchParams(location.search);
@@ -437,7 +383,7 @@ useEffect(() => {
     return null;
   };
 
-  // Fetch all conversations
+
   const fetchConversations = async (vendorIdFromUrl = null) => {
     try {
       setLoading(true);
@@ -447,14 +393,12 @@ useEffect(() => {
         }
       });
 
-      // Group messages by vendor to create conversation list
       const conversationsMap = {};
       
       response.data.conversations.forEach((msg, index) => {
         try {
           console.log(`Processing message ${index}:`, msg);
-          
-          // Skip if vendor is null/undefined
+      
           if (!msg.vendor || !msg.vendor._id) {
             console.log('Skipping message with no vendor:', msg);
             return;
@@ -478,14 +422,14 @@ useEffect(() => {
             console.log('Updating existing conversation for vendor:', vendorId);
             conversationsMap[vendorId].messages.push(msg);
             
-            // Update last message if this one is more recent
+           
             const msgTime = new Date(msg.createdAt || Date.now());
             if (msgTime > conversationsMap[vendorId].lastMessageTime) {
               conversationsMap[vendorId].lastMessage = msg.message;
               conversationsMap[vendorId].lastMessageTime = msgTime;
             }
             
-            // Count unread messages from vendor
+           
            
             if (msg.sentBy === 'vendor' && !msg.seenByUser) {
               conversationsMap[vendorId].unreadCount++;
@@ -505,14 +449,14 @@ useEffect(() => {
       setConversations(conversationsList);
       
      
-      // If vendorId from URL exists, select that conversation
+   
       if (vendorIdFromUrl) {
         const vendorConversation = conversationsList.find(conv => conv.vendor._id === vendorIdFromUrl);
         if (vendorConversation) {
           setSelectedConversation(vendorConversation);
         }
       } else if (conversationsList.length > 0 && !selectedConversation) {
-        // Auto-select first conversation if no URL param and nothing selected
+       
         setSelectedConversation(conversationsList[0]);
       }
       
@@ -523,7 +467,7 @@ useEffect(() => {
     }
   };
 
-  // Fetch messages for specific vendor
+ 
   const fetchMessages = async (vendorId) => {
     try {
       let conversationResponse = await axios.get(`${BASE_URL}/getConversation/${vendorId}`, {
@@ -579,7 +523,6 @@ useEffect(() => {
         }
       );
 
-      // Add new message to the list optimistically
       const newMsg = {
         id: response.data.id,
         senderId: 'current-user',
@@ -598,7 +541,7 @@ useEffect(() => {
         socketRef.socket.emit('sendMessage', {
           conversationId: selectedConversation.vendor._id,
           tempId:response.data.id,
-          senderId: localStorage.getItem('userId'), // or get from your auth context
+          senderId: localStorage.getItem('userId'),
           receiverId: selectedConversation.vendor._id,
           message: hasContactInfo ? messageToSend : newMessage.trim(),
           sendBy: 'user',
@@ -619,7 +562,7 @@ useEffect(() => {
         };
         setConversations([newConversation, ...conversations]);
       } else {
-        // Update existing conversation
+      
         setConversations(conversations.map(conv =>
           conv.id === selectedConversation.id
             ? { ...conv, lastMessage: newMessage.trim(), lastMessageTime: new Date(), unreadCount: 0 }
@@ -627,13 +570,7 @@ useEffect(() => {
         ));
       }
 
-      // Update last message in conversation list
-    //   setConversations(conversations.map(conv =>
-    //     conv.id === selectedConversation.id
-    //       ? { ...conv, lastMessage: newMessage.trim(), lastMessageTime: new Date(), unreadCount: 0 }
-    //       : conv
-    //   ));
-
+     
       setSendingMessage(false);
     } catch (e) {
       console.log(e.message);
@@ -685,7 +622,7 @@ useEffect(() => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // ADD THIS NEW FUNCTION
+
   const downloadConversation = async () => {
     if (!selectedConversation || messages.length === 0) {
       toast.info('No messages to download',{containerId:"renterChatPage"});
@@ -696,11 +633,10 @@ useEffect(() => {
     setShowOptionsMenu(false);
   
     try {
-      // Format messages for download
+      
       const conversationText = messages.map(msg => {
         const time = formatTime(msg.timestamp);
         const sender = msg.sentBy === 'user' ? 'You' : (selectedConversation.vendor.businessName || selectedConversation.vendor.name || 'Vendor');
-        // Handle both msg.message (from API) and potential undefined values
         const messageText = msg.message || msg.text || '[No message content]';
         return `[${time}] ${sender}: ${messageText}`;
       }).join('\n\n');
@@ -713,7 +649,7 @@ useEffect(() => {
   
       const fullContent = header + conversationText;
   
-      // Create and download file
+    
       const blob = new Blob([fullContent], { type: 'text/plain' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -1032,7 +968,7 @@ useEffect(() => {
                     onChange={(e) => {
                         setNewMessage(e.target.value);
                         
-                        // Emit typing indicator
+                       
                         if (socketRef?.socket && selectedConversation) {
                           socketRef.socket.emit('typing', {
                             conversationId: selectedConversation.vendor._id,

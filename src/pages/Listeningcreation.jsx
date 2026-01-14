@@ -110,7 +110,7 @@ const [loadingPickupSuggestions, setLoadingPickupSuggestions] = useState(false);
 const pickupAddressRef = useRef(null);
 const [loadingCurrentLocation, setLoadingCurrentLocation] = useState(false);
   
-  // Stripe onboarding state
+
   const [showStripePopup, setShowStripePopup] = useState(false);
   const [stripeOnboardingData, setStripeOnboardingData] = useState(null);
   
@@ -125,9 +125,9 @@ const [loadingCurrentLocation, setLoadingCurrentLocation] = useState(false);
     listAsActive: true,
     publishToFeed: false,
     pickUpAddress: '',
-    powerType: '', // ADD THIS
-    deliveryPrice: '', // ADD THIS
-    installationPrice: '', // ADD THIS
+    powerType: '', 
+    deliveryPrice: '', 
+    installationPrice: '', 
     location: {
       city: '',
       state: '',
@@ -160,20 +160,20 @@ const [loadingCurrentLocation, setLoadingCurrentLocation] = useState(false);
     setLoadingCurrentLocation(true);
     
     try {
-      // Check if geolocation is supported
+     
       if (!navigator.geolocation) {
         toast.info('Geolocation is not supported by your browser', { containerId: 'listingPage' });
         setLoadingCurrentLocation(false);
         return;
       }
   
-      // Get current position
+   
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
           
           try {
-            // Reverse geocode to get address
+           
             const response = await fetch(
               `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
               {
@@ -234,44 +234,17 @@ const [loadingCurrentLocation, setLoadingCurrentLocation] = useState(false);
     getCurrentLocation();
   }, []);
 
-  // Handle image file selection
-  // const handleImageChange = (e) => {
-  //   const files = Array.from(e.target.files);
-    
-  //   if (files.length === 0) return;
-    
-  //   // Only take the first file
-  //   const file = files[0];
-    
-  //   // Validate file size (10MB max)
-  //   if (file.size > 10 * 1024 * 1024) {
-  //     toast.error(`${file.name} is too large. Max 10MB per image`, { containerId: 'listingPage' });
-  //     return;
-  //   }
-  
-  //   // Replace existing image with new one
-  //   setImageFiles([file]);
-  
-  //   // Create preview
-  //   const reader = new FileReader();
-  //   reader.onloadend = () => {
-  //     setImagePreviews([reader.result]);
-  //   };
-  //   reader.readAsDataURL(file);
-  // };
-
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     
     if (files.length === 0) return;
     
-    // Check if adding these files would exceed 3 images
+    
     if (imageFiles.length + files.length > 3) {
       toast.error('You can only upload up to 3 images', { containerId: 'listingPage' });
       return;
     }
     
-    // Validate each file
     const validFiles = [];
     for (const file of files) {
       if (file.size > 10 * 1024 * 1024) {
@@ -283,11 +256,11 @@ const [loadingCurrentLocation, setLoadingCurrentLocation] = useState(false);
     
     if (validFiles.length === 0) return;
     
-    // Add new files to existing ones
+ 
     const newImageFiles = [...imageFiles, ...validFiles];
     setImageFiles(newImageFiles);
   
-    // Create previews for new files
+  
     const newPreviews = [];
     validFiles.forEach(file => {
       const reader = new FileReader();
@@ -300,9 +273,7 @@ const [loadingCurrentLocation, setLoadingCurrentLocation] = useState(false);
       reader.readAsDataURL(file);
     });
   };
-  // Remove image
 
-  // Handle click outside to close suggestions
 useEffect(() => {
   const handleClickOutside = (event) => {
     if (pickupAddressRef.current && !pickupAddressRef.current.contains(event.target)) {
@@ -314,7 +285,7 @@ useEffect(() => {
   return () => document.removeEventListener('mousedown', handleClickOutside);
 }, []);
 
-// Fetch location suggestions from OpenStreetMap
+
 const fetchPickupSuggestions = async (value) => {
   if (!value || value.length < 2) {
     setPickupSuggestions([]);
@@ -339,7 +310,7 @@ const fetchPickupSuggestions = async (value) => {
       fullAddress: item.display_name
     }));
     
-    // Remove duplicates
+   
     const uniqueSuggestions = formattedSuggestions.filter((item, index, self) =>
       index === self.findIndex((t) => t.displayName === item.displayName)
     );
@@ -355,8 +326,6 @@ const fetchPickupSuggestions = async (value) => {
 };
 
 
-
-// Debounce for pickup address
 useEffect(() => {
   const timer = setTimeout(() => {
     if (formData.pickUpAddress) {
@@ -383,7 +352,7 @@ const handleSelectPickupSuggestion = (suggestion) => {
     setImagePreviews(imagePreviews.filter((_, i) => i !== index));
   };
 
-  // Upload images to server/cloud
+
   const uploadImages = async () => {
     if (imageFiles.length === 0) return [];
 
@@ -415,7 +384,7 @@ const handleSelectPickupSuggestion = (suggestion) => {
     return uploadedImages;
   };
 
-  // Check Stripe onboarding status
+
   const checkStripeStatus = async () => {
     try {
       const token = localStorage.getItem('vendorToken');
@@ -432,12 +401,12 @@ const handleSelectPickupSuggestion = (suggestion) => {
 
       const data = response.data;
 
-      // If already connected, return true to continue
+     
       if (data.alreadyConnected) {
         return true;
       }
 
-      // If onboarding needed, show popup and return false
+     
       if (data.onboardingUrl) {
         setStripeOnboardingData(data);
         setShowStripePopup(true);
@@ -448,13 +417,13 @@ const handleSelectPickupSuggestion = (suggestion) => {
     } catch (error) {
       console.error('Error checking Stripe status:', error);
       
-      // If error checking, show warning but allow to continue
+   
       if (error?.response?.status === 404) {
         toast.error('Vendor not found', { containerId: 'listingPage' });
         return false;
       }
       
-      // For other errors, show warning but don't block
+     
       toast.warning('Could not verify payment setup. Please ensure Stripe is configured.', {
         containerId: 'listingPage'
       });
@@ -462,7 +431,7 @@ const handleSelectPickupSuggestion = (suggestion) => {
     }
   };
 
-  // Validate form data
+  
   const validateStep = () => {
     if (step === 1) {
       if (!formData.title.trim()) {
@@ -481,7 +450,7 @@ const handleSelectPickupSuggestion = (suggestion) => {
         toast.error('Please select the condition', { containerId: 'listingPage' });
         return false;
       }
-      if (!formData.powerType) { // ADD THIS
+      if (!formData.powerType) { 
         toast.error('Please select the power type', { containerId: 'listingPage' });
         return false;
       }
@@ -540,45 +509,45 @@ const handleSelectPickupSuggestion = (suggestion) => {
 
 
 
-  // Handle next step
+
   const handleNext = () => {
     if (validateStep()) {
       setStep(step + 1);
     }
   };
 
-  // Handle form submission with Stripe check
+ 
   const handleSubmit = async () => {
     if (!validateStep()) return;
 
     setLoading(true);
 
     try {
-      // 🎯 CHECK STRIPE STATUS FIRST
+     
       toast.info('Checking payment setup...', { containerId: 'listingPage' });
       const stripeReady = await checkStripeStatus();
       
       if (!stripeReady) {
         toast.dismiss();
         setLoading(false);
-        return; // Stop submission if Stripe not ready
+        return; 
       }
 
-      // Upload images
+    
       toast.info('Uploading images...', { containerId: 'listingPage' });
       const images = await uploadImages();
 
-      // Prepare listing data
+     
       const listingData = {
         title: formData.title,
         category: formData.category,
         brand: formData.brand,
         condition: formData.condition,
-        powerType: formData.powerType, // ADD THIS
+        powerType: formData.powerType,
         rentPrice: parseFloat(formData.rentPrice),
         buyPrice: parseFloat(formData.buyPrice),
-        deliveryPrice: parseFloat(formData.deliveryPrice), // Converts to number
-        installationPrice: parseFloat(formData.installationPrice), // Converts to number
+        deliveryPrice: parseFloat(formData.deliveryPrice), 
+        installationPrice: parseFloat(formData.installationPrice), 
         description: formData.description,
         images,
         listAsActive: formData.listAsActive,
@@ -587,7 +556,7 @@ const handleSelectPickupSuggestion = (suggestion) => {
         location: formData.location
       };
 
-      // Submit to API
+      
       const response = await axios.post(
         `${BASE_URL}/listings`,
         listingData,
@@ -604,7 +573,7 @@ const handleSelectPickupSuggestion = (suggestion) => {
         containerId: 'listingPage'
       });
 
-      // Redirect after 1.5 seconds
+      
       setTimeout(() => {
         navigate('/vendordashboard');
       }, 1500);
@@ -839,7 +808,7 @@ const handleSelectPickupSuggestion = (suggestion) => {
       disabled={loadingCurrentLocation}
     />
     
-    {/* Current Location Button */}
+ 
     <button
       type="button"
       onClick={getCurrentLocation}
@@ -861,7 +830,7 @@ const handleSelectPickupSuggestion = (suggestion) => {
     </button>
   </div>
   
-  {/* Loading Spinner for suggestions */}
+
   {loadingPickupSuggestions && (
     <div className="absolute right-3 top-11 text-gray-400 pointer-events-none">
       <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -871,7 +840,7 @@ const handleSelectPickupSuggestion = (suggestion) => {
     </div>
   )}
 
-  {/* Suggestions Dropdown */}
+  
   {showPickupSuggestions && pickupSuggestions.length > 0 && (
     <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto mt-1">
       {pickupSuggestions.map((suggestion, index) => (
@@ -886,7 +855,7 @@ const handleSelectPickupSuggestion = (suggestion) => {
     </ul>
   )}
 
-  {/* No Results Message */}
+  
   {showPickupSuggestions && !loadingPickupSuggestions && formData.pickUpAddress && formData.pickUpAddress.length >= 2 && pickupSuggestions.length === 0 && (
     <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 px-4 py-3 text-sm text-gray-500">
       No locations found
@@ -1003,10 +972,8 @@ const handleSelectPickupSuggestion = (suggestion) => {
       const file = e.target.files[0];
       if (!file) return;
     
-      // your existing code...
-      // after processing:
-    
-      e.target.value = ""; // reset safely here
+   
+      e.target.value = ""; 
     }}
     className="hidden"
   />
