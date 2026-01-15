@@ -246,13 +246,13 @@ useEffect(() => {
       const fullStreet = suggestion.houseNumber 
         ? `${suggestion.houseNumber} ${suggestion.street}`.trim()
         : suggestion.street || suggestion.displayName.split(',')[0];
-
+  
       setDeliveryAddress({
         street: fullStreet,
-        city: suggestion.city || deliveryAddress.city,
-        state: suggestion.state || deliveryAddress.state,
-        zipCode: suggestion.zipCode || deliveryAddress.zipCode,
-        country: suggestion.country || deliveryAddress.country
+        city: suggestion.city || '',  // Changed from deliveryAddress.city
+        state: suggestion.state || '',  // Changed from deliveryAddress.state
+        zipCode: suggestion.zipCode || '',  // Changed from deliveryAddress.zipCode
+        country: suggestion.country || ''  // Changed from deliveryAddress.country
       });
     } else if (field === 'city') {
       setDeliveryAddress(prev => ({
@@ -487,13 +487,13 @@ useEffect(() => {
   <div className="mb-8 text-center p-4 bg-gray-50 rounded-lg">
     <div className="flex justify-between items-start mb-4">
       <h3 className="text-lg font-bold text-gray-900">PICKUP ADDRESS</h3>
-      <button
+      {/* <button
         type="button"
         onClick={() => setIsEditingPickupAddress(!isEditingPickupAddress)}
         className="text-[#024a47] hover:text-[#036661] text-sm font-medium"
       >
         {isEditingPickupAddress ? 'Cancel' : 'Change Address'}
-      </button>
+      </button> */}
     </div>
     
     {!isEditingPickupAddress ? (
