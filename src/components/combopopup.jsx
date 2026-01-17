@@ -7,7 +7,7 @@ import { ArrowBigLeft ,User} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import LocationSuggestionField from "./locationsuggestionfield";
 import LocationSuggestionFieldPickup from "./locationsuggestionpickup";
-const FIXED_WARRANTY_FEE = 15;
+let FIXED_WARRANTY_FEE = 15;
 const ComboPopup = ({open,onClose,newMessagesLength,setOpen,menuRef,user,selectedComboAppliance, handlePlugTypeSelect,setShowComboPopup }) => {
   const [selectedDeliveryOption, setSelectedDeliveryOption] = useState('');
   const [selectedInstallOption, setSelectedInstallOption] = useState('');
@@ -53,7 +53,11 @@ const [newPickupAddress, setNewPickupAddress] = useState({
   
   const navigate=useNavigate();
 
+  console.log("SELECTEDCOMBO")
+console.log(selectedComboAppliance)
 
+
+FIXED_WARRANTY_FEE=selectedComboAppliance.warrantyPrice
   const wrapperRefs = {
     street: useRef(null),
     city: useRef(null),
@@ -61,6 +65,41 @@ const [newPickupAddress, setNewPickupAddress] = useState({
     country: useRef(null)
   };
 
+
+  useEffect(() => {
+    if (user?.deliveryAddress) {
+      // Parse the delivery address string into components
+      const parseAddress = (addressString) => {
+        // Assuming format: "street, city, state zipCode, country"
+        // or similar variations
+        const parts = addressString.split(',').map(p => p.trim());
+        
+        let parsed = {
+          street: '',
+          city: '',
+          state: '',
+          zipCode: '',
+          country: ''
+        };
+        
+        if (parts.length >= 1) parsed.street = parts[0];
+        if (parts.length >= 2) parsed.city = parts[1];
+        if (parts.length >= 3) {
+          // Split state and zipCode (assuming format like "State 12345")
+          const stateZip = parts[2].split(' ');
+          parsed.state = stateZip[0];
+          parsed.zipCode = stateZip.slice(1).join(' ');
+        }
+        if (parts.length >= 4) parsed.country = parts[3];
+        
+        return parsed;
+      };
+      
+      const parsedAddress = parseAddress(user.deliveryAddress);
+      setDeliveryAddress(parsedAddress);
+    }
+  }, [user]);
+  
   // Handle click outside to close suggestions
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -678,17 +717,22 @@ useEffect(() => {
           )}
 
        
-          <div className="mb-8 pb-8 text-center border-b border-gray-200">
-            <p className="text-lg text-gray-900">
-              Estimated monthly payment: <span className="font-bold">${selectedComboAppliance?.pricing?.rentPrice} + fees</span>
-            </p>
-            {selectedComboAppliance?.powerType == "Warranty" && (
-      <p className="text-lg font-semibold text-green-600">
-        + ${FIXED_WARRANTY_FEE}/mo Warranty Protection
-      </p>
-    )}
-          </div>
-
+<div className="mb-8 pb-8 text-center border-b border-gray-200">
+  <p className="text-lg text-gray-900">
+    Estimated monthly payment: 
+    <span className="font-bold">
+      ${selectedComboAppliance?.warranty && selectedComboAppliance?.warrantyPrice
+        ? (parseFloat(selectedComboAppliance.pricing.rentPrice) + parseFloat(selectedComboAppliance.warrantyPrice)).toFixed(2)
+        : selectedComboAppliance?.pricing?.rentPrice
+      } + fees
+    </span>
+  </p>
+  {selectedComboAppliance?.warranty && selectedComboAppliance?.warrantyPrice && (
+    <p className="text-sm text-gray-600 mt-2">
+      (Includes ${selectedComboAppliance.warrantyPrice}/mo Warranty Protection)
+    </p>
+  )}
+</div>
         
           <div className="grid grid-cols-2 gap-4 mb-8">
             <button

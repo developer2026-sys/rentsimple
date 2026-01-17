@@ -487,14 +487,14 @@ const getRejectionReasons = (listingId) => {
             setCustomRejectionReason('');
             setApplianceToReject(null);
           }}
-          className="flex-1 py-3 px-6 rounded-lg font-semibold text-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+          className="flex-1 py-3 cursor-pointer px-6 rounded-lg font-semibold text-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
         >
           Cancel
         </button>
         <button
           onClick={confirmReject}
           disabled={!selectedRejectionReason || (selectedRejectionReason === 'other' && !customRejectionReason.trim()) || isRejecting}
-          className={`flex-1 py-3 px-6 rounded-lg font-semibold text-lg transition-colors ${
+          className={`flex-1 cursor-pointer py-3 px-6 rounded-lg font-semibold text-lg transition-colors ${
             selectedRejectionReason && (selectedRejectionReason !== 'other' || customRejectionReason.trim()) && !isRejecting
               ? 'bg-red-600 text-white hover:bg-red-700'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -625,7 +625,7 @@ const getRejectionReasons = (listingId) => {
               <div className="relative">
                 <button 
                   onClick={() => setShowPriceDropdown(!showPriceDropdown)}
-                  className={`px-4 py-2 border rounded-full transition-colors ${
+                  className={`px-4 cursor-pointer py-2 border rounded-full transition-colors ${
                     selectedPriceRange
                       ? 'bg-[#024a47] text-white border-[#024a47]'
                       : 'bg-white border-gray-300 hover:bg-gray-50'
@@ -640,7 +640,7 @@ const getRejectionReasons = (listingId) => {
                       <button
                         key={index}
                         onClick={() => handlePriceFilter(range)}
-                        className={`block w-full text-left px-4 py-2 hover:bg-gray-100 first:rounded-t-lg last:rounded-b-lg ${
+                        className={`block cursor-pointer w-full text-left px-4 py-2 hover:bg-gray-100 first:rounded-t-lg last:rounded-b-lg ${
                           selectedPriceRange?.label === range.label ? 'bg-[#024a47] text-white hover:bg-[#035d59]' : ''
                         }`}
                       >
@@ -650,7 +650,7 @@ const getRejectionReasons = (listingId) => {
                     {selectedPriceRange && (
                       <button
                         onClick={() => handlePriceFilter(selectedPriceRange)}
-                        className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 border-t border-gray-200 rounded-b-lg"
+                        className="block cursor-pointer w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 border-t border-gray-200 rounded-b-lg"
                       >
                         Clear Filter
                       </button>
@@ -662,7 +662,7 @@ const getRejectionReasons = (listingId) => {
           
               <button 
                 onClick={() => handleCategoryFilter('Washer')}
-                className={`px-4 py-2 border rounded-full transition-colors ${
+                className={`px-4 cursor-pointer py-2 border rounded-full transition-colors ${
                   selectedCategory === 'Washer'
                     ? 'bg-[#024a47] text-white border-[#024a47]'
                     : 'bg-white border-gray-300 hover:bg-gray-50'
@@ -672,7 +672,7 @@ const getRejectionReasons = (listingId) => {
               </button>
               <button 
                 onClick={() => handleCategoryFilter('Dryer')}
-                className={`px-4 py-2 border rounded-full transition-colors ${
+                className={`px-4 cursor-pointer py-2 border rounded-full transition-colors ${
                   selectedCategory === 'Dryer'
                     ? 'bg-[#024a47] text-white border-[#024a47]'
                     : 'bg-white border-gray-300 hover:bg-gray-50'
@@ -682,7 +682,7 @@ const getRejectionReasons = (listingId) => {
               </button>
               <button 
                 onClick={() => handleCategoryFilter('Washer & Dryer')}
-                className={`px-4 py-2 border rounded-full transition-colors ${
+                className={`px-4 cursor-pointer py-2 border rounded-full transition-colors ${
                   selectedCategory === 'Washer & Dryer'
                     ? 'bg-[#024a47] text-white border-[#024a47]'
                     : 'bg-white border-gray-300 hover:bg-gray-50'
@@ -692,7 +692,7 @@ const getRejectionReasons = (listingId) => {
               </button>
               <button 
                 onClick={() => handleCategoryFilter('Refrigerator')}
-                className={`px-4 py-2 border rounded-full transition-colors ${
+                className={`px-4 cursor-pointer py-2 border rounded-full transition-colors ${
                   selectedCategory === 'Refrigerator'
                     ? 'bg-[#024a47] text-white border-[#024a47]'
                     : 'bg-white border-gray-300 hover:bg-gray-50'
@@ -702,7 +702,7 @@ const getRejectionReasons = (listingId) => {
               </button>
               <button 
                 onClick={() => handleCategoryFilter('Deep Freezer')}
-                className={`px-4 py-2 border rounded-full transition-colors ${
+                className={`px-4 cursor-pointer py-2 border rounded-full transition-colors ${
                   selectedCategory === 'Deep Freezer'
                     ? 'bg-[#024a47] text-white border-[#024a47]'
                     : 'bg-white border-gray-300 hover:bg-gray-50'
@@ -712,7 +712,7 @@ const getRejectionReasons = (listingId) => {
               </button>
               <button 
                 onClick={() => handleCategoryFilter('TV')}
-                className={`px-4 py-2 border rounded-full transition-colors ${
+                className={`px-4 cursor-pointer py-2 border rounded-full transition-colors ${
                   selectedCategory === 'TV'
                     ? 'bg-[#024a47] text-white border-[#024a47]'
                     : 'bg-white border-gray-300 hover:bg-gray-50'
@@ -732,7 +732,7 @@ const getRejectionReasons = (listingId) => {
       setSelectedCategory('');
       searchParams.delete('category');
       setSearchParams(searchParams);
-    }} className="hover:text-gray-200">×</button>
+    }} className="hover:text-gray-200 cursor-pointer">×</button>
   </span>
 )}
 {selectedPriceRange && (
@@ -742,7 +742,7 @@ const getRejectionReasons = (listingId) => {
       setSelectedPriceRange(null);
       searchParams.delete('price');
       setSearchParams(searchParams);
-    }} className="hover:text-gray-200">×</button>
+    }} className="hover:text-gray-200 cursor-pointer">×</button>
   </span>
 )}
              <button 
@@ -753,7 +753,7 @@ const getRejectionReasons = (listingId) => {
     searchParams.delete('price');
     setSearchParams(searchParams);
   }}
-  className="text-sm text-red-600 hover:text-red-700 underline"
+  className="text-sm text-red-600 cursor-pointer hover:text-red-700 underline"
 >
   Clear all
 </button>
@@ -777,7 +777,7 @@ const getRejectionReasons = (listingId) => {
     searchParams.delete('price');
     setSearchParams(searchParams);
   }}
-  className="mt-4 px-6 py-2 bg-[#024a47] text-white rounded-lg hover:bg-[#035d59]"
+  className="mt-4 px-6 py-2 cursor-pointer bg-[#024a47] text-white rounded-lg hover:bg-[#035d59]"
 >
   Clear Filters
 </button>
@@ -851,12 +851,14 @@ const getRejectionReasons = (listingId) => {
 
             
                     <div className="relative mb-4 bg-gray-50 rounded-lg p-4" style={{minHeight: '200px'}}>
+                    <div className="relative mb-4 bg-gray-50 rounded-lg p-4 h-64">
   <div className="flex justify-center items-center h-full">
     <img 
-      className='w-full max-w-[200px] h-auto object-contain' 
+      className='max-w-full max-h-full object-contain' 
       src={appliance?.images?.[currentImageIndex[appliance._id] || 0]?.url || getPrimaryImage(appliance?.images)} 
       alt={`${appliance.title} - Image ${(currentImageIndex[appliance._id] || 0) + 1}`} 
     />
+  </div>
   </div>
   
   {appliance?.images?.length > 1 && (
@@ -870,7 +872,7 @@ const getRejectionReasons = (listingId) => {
             [appliance._id]: ((prev[appliance._id] || 0) - 1 + appliance.images.length) % appliance.images.length
           }));
         }}
-        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-md transition-all"
+        className="absolute cursor-pointer left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-md transition-all"
       >
         <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -886,7 +888,7 @@ const getRejectionReasons = (listingId) => {
             [appliance._id]: ((prev[appliance._id] || 0) + 1) % appliance.images.length
           }));
         }}
-        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-md transition-all"
+        className="absolute cursor-pointer right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-md transition-all"
       >
         <svg className="w-5 h-5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -905,7 +907,7 @@ const getRejectionReasons = (listingId) => {
                 [appliance._id]: index
               }));
             }}
-            className={`w-2 h-2 rounded-full transition-all ${
+            className={`w-2 h-2 rounded-full cursor-pointer transition-all ${
               (currentImageIndex[appliance._id] || 0) === index 
                 ? 'bg-[#024a47] w-6' 
                 : 'bg-gray-400'
@@ -954,6 +956,17 @@ const getRejectionReasons = (listingId) => {
                       <p className="text-sm text-gray-600 mb-2">
                         {appliance.brand} • {appliance.condition}
                       </p>
+
+                      {(appliance.dimensions?.length || appliance.dimensions?.width || appliance.dimensions?.height) && (
+  <div className="mb-2 inline-block bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1 rounded-full">
+    <span className="font-semibold">📏 </span>
+    {appliance.dimensions.length && `${appliance.dimensions.length}`}
+    {appliance.dimensions.length && appliance.dimensions.width && ' × '}
+    {appliance.dimensions.width && `${appliance.dimensions.width}`}
+    {appliance.dimensions.width && appliance.dimensions.height && ' × '}
+    {appliance.dimensions.height && `${appliance.dimensions.height}`}
+  </div>
+)}
                       
                 
                       <p className="text-2xl font-bold text-gray-900 mb-3">
@@ -965,7 +978,7 @@ const getRejectionReasons = (listingId) => {
                         {appliance.category}
                       </div>
 
-                      {appliance.powerType === 'Warranty' && (
+                      {appliance.warranty && (
   <div className="inline-block bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded-full mb-3 ml-2">
     <span className="mr-1">✓</span>
     Warranty Included
@@ -1045,7 +1058,7 @@ const getRejectionReasons = (listingId) => {
                      <button
                       onClick={() => navigate(`/renterconfirmation?id=${requests?.find(u => u.listing == appliance._id && u?.status=="approved")?._id}`)}
                        disabled={!appliance.availability?.isAvailable}
-                       className={`flex-1 py-3 px-6 rounded-lg font-semibold text-lg transition-colors ${
+                       className={`cursor-pointer flex-1 py-3 px-6 rounded-lg font-semibold text-lg transition-colors ${
                          !appliance.availability?.isAvailable
                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                            : 'bg-[#024a47] hover:bg-[#035d59] text-white'
@@ -1060,7 +1073,7 @@ const getRejectionReasons = (listingId) => {
     handleReject(appliance, e);
   }}
   disabled={!appliance.availability?.isAvailable}
-  className={`flex-1 py-3 px-6 rounded-lg font-semibold text-lg transition-colors ${
+  className={`flex-1 cursor-pointer py-3 px-6 rounded-lg font-semibold text-lg transition-colors ${
     !appliance.availability?.isAvailable
       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
       : 'bg-red-600 hover:bg-red-700 text-white'
@@ -1078,7 +1091,7 @@ const getRejectionReasons = (listingId) => {
     handleReject(appliance, e);
   }}
   disabled={!appliance.availability?.isAvailable}
-  className={`w-full flex-1 py-3 px-6 rounded-lg font-semibold text-lg transition-colors ${
+  className={`w-full flex-1 cursor-pointer py-3 px-6 rounded-lg font-semibold text-lg transition-colors ${
     !appliance.availability?.isAvailable
       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
       : 'bg-red-600 hover:bg-red-700 text-white'
@@ -1089,7 +1102,7 @@ const getRejectionReasons = (listingId) => {
 </button>:<button
                         onClick={() => handleSelect(appliance)}
                         disabled={!appliance.availability?.isAvailable}
-                        className={`w-full py-3 px-6 rounded-lg font-semibold text-lg transition-colors ${
+                        className={`w-full cursor-pointer py-3 px-6 rounded-lg font-semibold text-lg transition-colors ${
                           !appliance.availability?.isAvailable
                             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                             : 'bg-[#024a47] hover:bg-[#035d59] text-white'
@@ -1105,7 +1118,7 @@ const getRejectionReasons = (listingId) => {
                       onClick={() => {
                         navigate(`/userchat?vendor=${appliance?.vendor?._id}`)
                       }}
-                      className="w-full py-3 px-6 rounded-lg font-semibold text-lg bg-[#024a47] hover:bg-[#035d59] text-white transition-colors"
+                      className="w-full cursor-pointer py-3 px-6 rounded-lg font-semibold text-lg bg-[#024a47] hover:bg-[#035d59] text-white transition-colors"
                     >
                       Contact vendor
                     </button>

@@ -25,13 +25,12 @@ function UserProfile() {
   const [requests, setRequests] = useState([]);
 const [editingRequestId, setEditingRequestId] = useState(null);
 const [editAddressData, setEditAddressData] = useState({});
-
-
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    mobile: ''
-  });
+const [formData, setFormData] = useState({
+  name: '',
+  email: '',
+  mobile: '',
+  deliveryAddress: ''
+});
   const [savingAddress, setSavingAddress] = useState(false);
   
   
@@ -207,7 +206,8 @@ function PaymentForm({ onSave, onCancel, saving }) {
       setFormData({
         name: userData.name || '',
         email: userData.email || '',
-        mobile: userData.mobile || ''
+        mobile: userData.mobile || '',
+        deliveryAddress: userData.deliveryAddress || ''
       });
    
     
@@ -379,7 +379,10 @@ const fetchUserRequests = async () => {
         return;
       }
 
-      
+      if (!formData.deliveryAddress.trim()) {
+        toast.info('Delivery address is required',{containerId:"userProfile"});
+        return;
+      }
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email)) {
       toast.info('Please enter a valid email address',{containerId:"userProfile"});
@@ -509,7 +512,8 @@ setShowPasswordSection(false);
     setFormData({
       name: user.name || '',
       email: user.email || '',
-      mobile: user.mobile || ''
+      mobile: user.mobile || '',
+      deliveryAddress: user.deliveryAddress || ''
     });
    
     setEditMode(false);
@@ -754,6 +758,35 @@ setShowPasswordSection(false);
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <div className="flex items-center space-x-2">
+                  <MapPin className="w-4 h-4" />
+                  <span>Delivery Address</span>
+                </div>
+              </label>
+              {editMode ? (
+                <LocationSuggestionField
+                  value={formData.deliveryAddress}
+                  onChange={(value) => {
+                    const addressValue = typeof value === 'string' ? value : value?.name || '';
+                    setFormData(prev => ({
+                      ...prev,
+                      deliveryAddress: addressValue
+                    }));
+                  }}
+                  name="deliveryAddress"
+                  title="Enter your delivery address"
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={formData.deliveryAddress}
+                  disabled
+                  className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg bg-gray-100 cursor-not-allowed"
+                />
+              )}
+            </div>
             {/* Action Buttons */}
             {editMode && (
               <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4">

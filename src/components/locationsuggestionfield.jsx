@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import React from 'react'
-const LocationSuggestionField = ({ value, onChange, name = "location", required = false }) => {
+const LocationSuggestionField = ({ value, onChange, name = "location", required = false, title }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
   const wrapperRef = useRef(null);
+  console.log("TITLE")
+  console.log(title)
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -84,7 +86,13 @@ const LocationSuggestionField = ({ value, onChange, name = "location", required 
         onChange={handleInputChange}
         onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
         className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
-        placeholder={name === 'street' ? 'Street Address' : name === 'city' ? 'City' : name === 'state' ? 'State' : 'Country'}
+        placeholder={title || (
+          name === 'street' ? 'Street Address' :
+          name === 'city' ? 'City' :
+          name === 'state' ? 'State' :
+          'Country'
+        )}
+        
         required={required}
         autoComplete="off"
       />

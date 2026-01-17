@@ -127,11 +127,18 @@ const [loadingCurrentLocation, setLoadingCurrentLocation] = useState(false);
     pickUpAddress: '',
     powerType: '', 
     deliveryPrice: '', 
-    installationPrice: '', 
+    warrantyPrice: '',
+    installationPrice: '',
+    warranty: false,
     location: {
       city: '',
       state: '',
       zipCode: ''
+    },
+    dimensions: {
+      length: '',
+      width: '',
+      height: ''
     }
   });
 
@@ -454,6 +461,10 @@ const handleSelectPickupSuggestion = (suggestion) => {
         toast.error('Please select the power type', { containerId: 'listingPage' });
         return false;
       }
+      if (formData.warranty && (!formData.warrantyPrice || formData.warrantyPrice <= 0)) {
+        toast.error('Please enter a valid warranty price', { containerId: 'listingPage' });
+        return false;
+      }
       if (!formData.pickUpAddress.trim()) {
         toast.error('Please enter the pickup address', { containerId: 'listingPage' });
         return false;
@@ -547,15 +558,17 @@ const handleSelectPickupSuggestion = (suggestion) => {
         rentPrice: parseFloat(formData.rentPrice),
         buyPrice: parseFloat(formData.buyPrice),
         deliveryPrice: parseFloat(formData.deliveryPrice), 
-        installationPrice: parseFloat(formData.installationPrice), 
+        installationPrice: parseFloat(formData.installationPrice),
+        warranty: formData.warranty,
+        ...(formData.warranty && { warrantyPrice: parseFloat(formData.warrantyPrice) }),
         description: formData.description,
         images,
         listAsActive: formData.listAsActive,
         publishToFeed: formData.publishToFeed,
         pickUpAddress: formData.pickUpAddress,
-        location: formData.location
+        location: formData.location,
+        dimensions: formData.dimensions
       };
-
       
       const response = await axios.post(
         `${BASE_URL}/listings`,
@@ -768,12 +781,53 @@ const handleSelectPickupSuggestion = (suggestion) => {
                     />
                   </div>
                 </div>
-<div>
+
+                <div>
+  <label className="block text-sm font-semibold text-gray-700 mb-2">
+    Dimensions (Optional)
+  </label>
+  <div className="grid grid-cols-3 gap-4">
+    <div>
+      <input
+        type="text"
+        name="dimensions.length"
+        value={formData.dimensions.length}
+        onChange={handleInputChange}
+        placeholder='Length (e.g., 30")'
+        className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+      />
+    </div>
+    <div>
+      <input
+        type="text"
+        name="dimensions.width"
+        value={formData.dimensions.width}
+        onChange={handleInputChange}
+        placeholder='Width (e.g., 28")'
+        className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+      />
+    </div>
+    <div>
+      <input
+        type="text"
+        name="dimensions.height"
+        value={formData.dimensions.height}
+        onChange={handleInputChange}
+        placeholder='Height (e.g., 65")'
+        className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+      />
+    </div>
+  </div>
+  <p className="text-xs text-gray-500 mt-1">
+    Enter dimensions in inches (L × W × H)
+  </p>
+</div>
+                <div>
   <label className="block text-sm font-semibold text-gray-700 mb-2">
     Power Type *
   </label>
-  <div className="grid grid-cols-2 gap-3">
-    {['Electric', 'Gas','Other','Warranty'].map((type) => (
+  <div className="grid grid-cols-3 gap-3">
+    {['Electric', 'Gas','Other'].map((type) => (
       <button
         key={type}
         type="button"
@@ -791,6 +845,46 @@ const handleSelectPickupSuggestion = (suggestion) => {
     ))}
   </div>
 </div>
+
+<div>
+  <label className="block text-sm font-semibold text-gray-700 mb-2">
+    Warranty
+  </label>
+  <div className="flex items-center space-x-3">
+    <button
+      type="button"
+      onClick={() => setFormData({ ...formData, warranty: !formData.warranty })}
+      className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+        formData.warranty
+          ? 'bg-[#024a47] text-white'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+      }`}
+    >
+      {formData.warranty ? 'Yes' : 'No'}
+    </button>
+  </div>
+</div>
+
+{formData.warranty && (
+  <div>
+    <label className="block text-sm font-semibold text-gray-700 mb-2">
+      Warranty Price *
+    </label>
+    <div className="relative">
+      <span className="absolute left-4 top-3 text-gray-600">$</span>
+      <input
+        type="number"
+        name="warrantyPrice"
+        value={formData.warrantyPrice}
+        onChange={handleInputChange}
+        placeholder="49.99"
+        step="0.01"
+        min="0"
+        className="w-full pl-8 pr-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+      />
+    </div>
+  </div>
+)}
 <div ref={pickupAddressRef} className="relative">
   <label className="block text-sm font-semibold text-gray-700 mb-2">
     Pickup Address *
@@ -1094,6 +1188,20 @@ const handleSelectPickupSuggestion = (suggestion) => {
     ${formData.installationPrice}
   </span>
 </div>
+<div className="flex justify-between">
+  <span className="text-gray-600">Warranty:</span>
+  <span className="font-semibold">
+    {formData.warranty ? 'Yes' : 'No'}
+  </span>
+</div>
+{formData.warranty && (
+  <div className="flex justify-between">
+    <span className="text-gray-600">Warranty Price:</span>
+    <span className="font-semibold">
+      ${formData.warrantyPrice}
+    </span>
+  </div>
+)}
                   </div>
                 </div>
               </div>

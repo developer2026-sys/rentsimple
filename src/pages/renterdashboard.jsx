@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Package, Eye,MessageCircleCode,MessageSquare, DollarSign, Home, LogOut, Clock, CheckCircle, XCircle, FileText, CreditCard, MessageCircle, User, CrossIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
@@ -19,8 +19,9 @@ function RenterDashboard() {
   const [rejectReason, setRejectReason] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [processingReject, setProcessingReject] = useState(false);
-
-  
+  const [newMessagesLength,setNewMessagesLength]=useState(0)
+  const menuRef=useRef();
+  const [open,setOpen]=useState(false)
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -73,6 +74,24 @@ function RenterDashboard() {
   };
 
 
+  const getNewMessages=async()=>{
+    try{
+      let token=localStorage.getItem('token')
+let response=await axios.get(`${BASE_URL}/unSeenMessagesLength`,{
+  headers:{
+    Authorization:`Bearer ${token}`
+  }
+})
+
+setNewMessagesLength(response.data.messagesLength)
+    }catch(e){
+      
+    }
+  }
+  
+useEffect(()=>{
+  getNewMessages()
+},[])
 
   const downloadReceipt = (receipt) => {
     try {
@@ -501,6 +520,57 @@ const stats = [
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              
+  <div className="relative" ref={menuRef}>
+    
+    
+    <div
+        className="relative cursor-pointer"
+        onClick={() => setOpen(!open)}
+      >
+      
+        <User className="w-8 h-8 text-gray-700" />
+  
+       
+        {newMessagesLength > 0 && (
+          <span className="absolute top-0 right-0 h-3 w-3 rounded-full bg-red-600"></span>
+        )}
+      </div>
+  
+     
+      {open && (
+        <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-md border p-2 z-50">
+          
+          <div
+    onClick={() => navigate("/userchat")}
+    className="px-3 py-2 hover:bg-gray-100 rounded cursor-pointer flex items-center gap-2"
+  >
+    {newMessagesLength > 0 && (
+      <span className="h-2 w-2 rounded-full bg-red-600 inline-block"></span>
+    )}
+    Chat
+  </div>
+    
+  
+          <div 
+            onClick={() => navigate("/profile")}
+            className="px-3 py-2 hover:bg-gray-100 rounded cursor-pointer"
+          >
+            Profile
+          </div>
+          <div 
+            onClick={() => {
+              localStorage.removeItem('token')
+              window.location.href='/'
+            }}
+            className="px-3 cursor-pointer py-2 hover:bg-gray-100 rounded cursor-pointer"
+          >
+           Logout
+          </div>
+        </div>
+      )}
+  
+    </div>
               <button 
                 onClick={handleLogout}
                 className="flex items-center space-x-2 text-gray-600 hover:text-[#024a47]"

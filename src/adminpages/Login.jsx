@@ -64,6 +64,9 @@ setTimeout(() => {
     navigate('/admin')
   }, 1500);
 }catch(e){
+  
+  setLoading(false);
+   
     if(e?.response?.data?.error){
         toast.error(e?.response?.data?.error,{containerId:"adminloginPage"})
     }else{
@@ -171,14 +174,14 @@ setTimeout(() => {
         </div>
 
 
-        <div className="text-center mt-6 text-sm text-gray-600">
+        {/* <div className="text-center mt-6 text-sm text-gray-600">
           <p>
             Dont have a account?{' '}
             <a href="/adminregister" className="text-purple-600 hover:text-purple-700 font-medium transition">
              Register
             </a>
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
  </>
