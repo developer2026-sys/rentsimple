@@ -29,7 +29,7 @@ const StripeOnboardingPopup = ({ isOpen, onClose, onboardingUrl, accountId }) =>
 
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
@@ -75,7 +75,7 @@ const StripeOnboardingPopup = ({ isOpen, onClose, onboardingUrl, accountId }) =>
         <div className="flex flex-col gap-3">
           <button
             onClick={handleContinue}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-200"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-blue-200 cursor-pointer"
           >
             Continue to Stripe
             <ExternalLink className="w-4 h-4" />
@@ -83,7 +83,7 @@ const StripeOnboardingPopup = ({ isOpen, onClose, onboardingUrl, accountId }) =>
 
           <button
             onClick={onClose}
-            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-lg transition-colors"
+            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-lg transition-colors cursor-pointer"
           >
             I'll do this later
           </button>
@@ -643,7 +643,7 @@ function ListingCreationFlow() {
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => navigate('/vendordashboard')}
-                className="text-gray-600 hover:text-[#024a47]"
+                className="text-gray-600 hover:text-[#024a47] cursor-pointer"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -682,12 +682,13 @@ function ListingCreationFlow() {
                 </h2>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="listing-title" className="block text-sm font-semibold text-gray-700 mb-2">
                     Listing Title *
                   </label>
                   <input
                     type="text"
                     name="title"
+                    id="listing-title"
                     value={formData.title}
                     onChange={handleInputChange}
                     placeholder="e.g., Samsung 5.0 Cu. Ft. Refrigerator"
@@ -697,10 +698,11 @@ function ListingCreationFlow() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="listing-category" className="block text-sm font-semibold text-gray-700 mb-2">
                       Category *
                     </label>
                     <select
+                      id="listing-category"
                       name="category"
                       value={formData.category}
                       onChange={handleInputChange}
@@ -718,10 +720,11 @@ function ListingCreationFlow() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="listing-brand" className="block text-sm font-semibold text-gray-700 mb-2">
                       Brand *
                     </label>
                     <input
+                      id="listing-brand"
                       type="text"
                       name="brand"
                       value={formData.brand}
@@ -744,7 +747,7 @@ function ListingCreationFlow() {
                         onClick={() =>
                           setFormData({ ...formData, condition: cond })
                         }
-                        className={`py-3 rounded-lg font-semibold transition-all ${formData.condition === cond
+                        className={`py-3 rounded-lg font-semibold transition-all cursor-pointer ${formData.condition === cond
                           ? 'bg-[#024a47] text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           }`}
@@ -757,10 +760,11 @@ function ListingCreationFlow() {
 
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="listing-loc-city" className="block text-sm font-semibold text-gray-700 mb-2">
                       City
                     </label>
                     <input
+                      id="listing-loc-city"
                       type="text"
                       name="location.city"
                       value={formData.location.city}
@@ -770,10 +774,11 @@ function ListingCreationFlow() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="listing-loc-state" className="block text-sm font-semibold text-gray-700 mb-2">
                       State
                     </label>
                     <input
+                      id="listing-loc-state"
                       type="text"
                       name="location.state"
                       value={formData.location.state}
@@ -783,10 +788,11 @@ function ListingCreationFlow() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="listing-loc-zip" className="block text-sm font-semibold text-gray-700 mb-2">
                       ZIP Code
                     </label>
                     <input
+                      id="listing-loc-zip"
                       type="text"
                       name="location.zipCode"
                       value={formData.location.zipCode}
@@ -808,7 +814,7 @@ function ListingCreationFlow() {
                         onClick={() =>
                           setFormData({ ...formData, powerType: type })
                         }
-                        className={`py-3 rounded-lg font-semibold transition-all ${formData.powerType === type
+                        className={`py-3 rounded-lg font-semibold transition-all cursor-pointer ${formData.powerType === type
                           ? 'bg-[#024a47] text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           }`}
@@ -819,11 +825,12 @@ function ListingCreationFlow() {
                   </div>
                 </div>
                 <div ref={pickupAddressRef} className="relative">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="listing-loc-address" className="block text-sm font-semibold text-gray-700 mb-2">
                     Pickup Address *
                   </label>
                   <div className="relative">
                     <input
+                      id="listing-loc-address"
                       type="text"
                       name="pickUpAddress"
                       value={formData.pickUpAddress}
@@ -840,7 +847,7 @@ function ListingCreationFlow() {
                       type="button"
                       onClick={getCurrentLocation}
                       disabled={loadingCurrentLocation}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#024a47] hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#024a47] hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                       title="Use current location"
                     >
                       {loadingCurrentLocation ? (
@@ -907,12 +914,13 @@ function ListingCreationFlow() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="listing-price-rent" className="block text-sm font-semibold text-gray-700 mb-2">
                       Monthly Rent Price *
                     </label>
                     <div className="relative">
                       <span className="absolute left-4 top-3 text-gray-600">$</span>
                       <input
+                        id="listing-price-rent"
                         type="number"
                         name="rentPrice"
                         value={formData.rentPrice}
@@ -926,12 +934,13 @@ function ListingCreationFlow() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="listing-price-buy" className="block text-sm font-semibold text-gray-700 mb-2">
                       Buy Now Price *
                     </label>
                     <div className="relative">
                       <span className="absolute left-4 top-3 text-gray-600">$</span>
                       <input
+                        id="listing-price-buy"
                         type="number"
                         name="buyPrice"
                         value={formData.buyPrice}
@@ -946,12 +955,13 @@ function ListingCreationFlow() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label htmlFor="listing-price-delivery" className="block text-sm font-semibold text-gray-700 mb-2">
                         Delivery Price *
                       </label>
                       <div className="relative">
                         <span className="absolute left-4 top-3 text-gray-600">$</span>
                         <input
+                          id="listing-price-delivery"
                           type="number"
                           name="deliveryPrice"
                           value={formData.deliveryPrice}
@@ -965,12 +975,13 @@ function ListingCreationFlow() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label htmlFor="listing-price-install" className="block text-sm font-semibold text-gray-700 mb-2">
                         Installation Price *
                       </label>
                       <div className="relative">
                         <span className="absolute left-4 top-3 text-gray-600">$</span>
                         <input
+                          id="listing-price-install"
                           type="number"
                           name="installationPrice"
                           value={formData.installationPrice}
@@ -1057,10 +1068,11 @@ function ListingCreationFlow() {
                 </h2>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="listing-description" className="block text-sm font-semibold text-gray-700 mb-2">
                     Description * (Min 25 characters)
                   </label>
                   <textarea
+                    id="listing-description"
                     name="description"
                     value={formData.description}
                     onChange={handleInputChange}
@@ -1136,7 +1148,7 @@ function ListingCreationFlow() {
                 <button
                   onClick={() => setStep(step - 1)}
                   disabled={loading}
-                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Back
                 </button>
@@ -1144,7 +1156,7 @@ function ListingCreationFlow() {
               {step < 3 ? (
                 <button
                   onClick={handleNext}
-                  className="ml-auto px-6 py-3 bg-[#024a47] text-white rounded-lg font-semibold hover:bg-[#035d59] transition-all"
+                  className="ml-auto px-6 py-3 bg-[#024a47] text-white rounded-lg font-semibold hover:bg-[#035d59] transition-all cursor-pointer"
                 >
                   Continue
                 </button>
@@ -1152,7 +1164,7 @@ function ListingCreationFlow() {
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="ml-auto px-6 py-3 bg-[#024a47] text-white rounded-lg font-semibold hover:bg-[#035d59] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                  className="ml-auto px-6 py-3 bg-[#024a47] text-white rounded-lg font-semibold hover:bg-[#035d59] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
                 >
                   {loading ? (
                     <>
