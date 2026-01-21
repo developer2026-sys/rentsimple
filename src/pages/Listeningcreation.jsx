@@ -1,7 +1,7 @@
 
 
-import React, { useState, useRef, useEffect, use } from "react";
-import { X, Upload, Check, ExternalLink, CreditCard, AlertCircle } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { X, Upload, Check, ExternalLink, CreditCard } from "lucide-react";
 import { ToastContainer, toast } from 'react-toastify';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -107,7 +107,6 @@ function ListingCreationFlow() {
   const [pickupSuggestions, setPickupSuggestions] = useState([]);
   const [showPickupSuggestions, setShowPickupSuggestions] = useState(false);
   const [loadingPickupSuggestions, setLoadingPickupSuggestions] = useState(false);
-  const [hasWarranty, setHasWarranty] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [subcategoryList, setSubcategoryList] = useState([...LISTING_SUBCATEGORIES]);
@@ -592,7 +591,6 @@ function ListingCreationFlow() {
         buyPrice: parseFloat(formData.buyPrice),
         deliveryPrice: parseFloat(formData.deliveryPrice),
         installationPrice: parseFloat(formData.installationPrice),
-        warranty: formData.warranty,
         ...(formData.warranty && { warrantyPrice: parseFloat(formData.warrantyPrice) }),
         description: formData.description,
         images,
