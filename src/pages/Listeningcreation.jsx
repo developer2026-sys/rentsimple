@@ -1,13 +1,13 @@
 
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect, use } from "react";
 import { X, Upload, Check, ExternalLink, CreditCard, AlertCircle } from "lucide-react";
 import { ToastContainer, toast } from 'react-toastify';
 import axios from 'axios';
-import { useRef, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { BASE_URL } from "../baseUrl";
 
+import { LISTING_CATEGORIES, LISTING_SUBCATEGORIES, CONDITION_OPTIONS } from '../constants/listings'
 
 const StripeOnboardingPopup = ({ isOpen, onClose, onboardingUrl, accountId }) => {
   if (!isOpen) return null;
@@ -107,6 +107,10 @@ function ListingCreationFlow() {
   const [pickupSuggestions, setPickupSuggestions] = useState([]);
   const [showPickupSuggestions, setShowPickupSuggestions] = useState(false);
   const [loadingPickupSuggestions, setLoadingPickupSuggestions] = useState(false);
+  const [hasWarranty, setHasWarranty] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedSubcategory, setSelectedSubcategory] = useState('');
+  const [subcategoryList, setSubcategoryList] = useState([...LISTING_SUBCATEGORIES]);
   const pickupAddressRef = useRef(null);
   const [loadingCurrentLocation, setLoadingCurrentLocation] = useState(false);
 
@@ -136,6 +140,7 @@ function ListingCreationFlow() {
   });
 
 
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -154,6 +159,17 @@ function ListingCreationFlow() {
         [name]: type === 'checkbox' ? checked : value
       });
     }
+  };
+
+  const handleCategoryChange = (e) => {
+    const value = e.target.value;
+    setSelectedCategory(value);
+  };
+
+  const handleSubcategoryChange = (e) => {
+    const value = e.target.value;
+    setSelectedSubcategory(value);
+    handleInputChange(e);
   };
 
   const getCurrentLocation = async () => {
@@ -233,6 +249,13 @@ function ListingCreationFlow() {
   useEffect(() => {
     getCurrentLocation();
   }, []);
+
+  useEffect(() => {
+    // Filter subcategories based on selected category
+    console.log(selectedCategory);
+    const filteredSubcategories = LISTING_SUBCATEGORIES.filter(subcat => subcat.category === selectedCategory || subcat.category === 'none');
+    setSubcategoryList(filteredSubcategories);
+  }, [selectedCategory]);
 
   // Handle image file selection
   // const handleImageChange = (e) => {
@@ -575,6 +598,7 @@ function ListingCreationFlow() {
         brand: formData.brand,
         condition: formData.condition,
         powerType: formData.powerType, // ADD THIS
+        warranty: formData.warranty, // ADD THIS
         rentPrice: parseFloat(formData.rentPrice),
         buyPrice: parseFloat(formData.buyPrice),
         deliveryPrice: parseFloat(formData.deliveryPrice), // Converts to number
@@ -704,18 +728,50 @@ function ListingCreationFlow() {
                     <select
                       id="listing-category"
                       name="category"
-                      value={formData.category}
-                      onChange={handleInputChange}
+                      value={selectedCategory}
+                      onChange={handleCategoryChange}
                       className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
                     >
                       <option value="">Select category</option>
-                      <option value="refrigerator">Refrigerator</option>
+                      {/* <option value="refrigerator">Refrigerator</option>
                       <option value="washer">Washing Machine</option>
                       <option value="dryer">Dryer</option>
                       <option value="dishwasher">Dishwasher</option>
                       <option value="oven">Oven</option>
                       <option value="microwave">Microwave</option>
-                      <option value="other">Other</option>
+                      <option value="other">Other</option> */}
+                      {LISTING_CATEGORIES?.sort((a, b) => a.label.localeCompare(b.label)).map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="listing-subcategory" className="block text-sm font-semibold text-gray-700 mb-2">
+                      Subcategory *
+                    </label>
+                    <select
+                      id="listing-subcategory"
+                      name="subcategory"
+                      value={selectedSubcategory}
+                      disabled={!selectedCategory}
+                      onChange={handleSubcategoryChange}
+                      className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+                    >
+                      <option value="">Select subcategory</option>
+                      {/* <option value="refrigerator">Refrigerator</option>
+                      <option value="washer">Washing Machine</option>
+                      <option value="dryer">Dryer</option>
+                      <option value="dishwasher">Dishwasher</option>
+                      <option value="oven">Oven</option>
+                      <option value="microwave">Microwave</option>
+                      <option value="other">Other</option> */}
+                      {subcategoryList?.sort((a, b) => a.label.localeCompare(b.label))?.map((subcat) => (
+                        <option key={subcat.id} value={subcat.id}>
+                          {subcat.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
@@ -733,30 +789,51 @@ function ListingCreationFlow() {
                       className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Condition *
-                  </label>
-                  <div className="grid grid-cols-3 gap-3">
-                    {['New', 'Like New', 'Good'].map((cond) => (
-                      <button
-                        key={cond}
-                        type="button"
-                        onClick={() =>
-                          setFormData({ ...formData, condition: cond })
-                        }
-                        className={`py-3 rounded-lg font-semibold transition-all cursor-pointer ${formData.condition === cond
-                          ? 'bg-[#024a47] text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                      >
-                        {cond}
-                      </button>
-                    ))}
+                  <div>
+                    <label htmlFor="listing-condition" className="block text-sm font-semibold text-gray-700 mb-2">
+                      Condition *
+                    </label>
+                    <select
+                      id="listing-condition"
+                      name="condition"
+                      value={formData.condition}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+                    >
+                      <option value="">Select condition</option>
+                      {/* <option value="refrigerator">Refrigerator</option>
+                      <option value="washer">Washing Machine</option>
+                      <option value="dryer">Dryer</option>
+                      <option value="dishwasher">Dishwasher</option>
+                      <option value="oven">Oven</option>
+                      <option value="microwave">Microwave</option>
+                      <option value="other">Other</option> */}
+                      {CONDITION_OPTIONS?.map((cond) => (
+                        <option key={cond.value} value={cond.value}>
+                          {cond.label}
+                        </option>
+                      ))}
+                    </select>
+                    {/* <div className="grid grid-cols-3 gap-3">
+                      {['New', 'Like New', 'Good'].map((cond) => (
+                        <button
+                          key={cond}
+                          type="button"
+                          onClick={() =>
+                            setFormData({ ...formData, condition: cond })
+                          }
+                          className={`py-3 rounded-lg font-semibold transition-all cursor-pointer ${formData.condition === cond
+                            ? 'bg-[#024a47] text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                        >
+                          {cond}
+                        </button>
+                      ))}
+                    </div> */}
                   </div>
                 </div>
+
 
                 <div className="grid grid-cols-3 gap-4">
                   <div>
