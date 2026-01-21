@@ -263,7 +263,7 @@ function ListingCreationFlow() {
     const filteredSubcategories = LISTING_SUBCATEGORIES.filter(subcat => subcat.category === selectedCategory || subcat.category === 'none');
     setSubcategoryList(filteredSubcategories);
     const category = LISTING_CATEGORIES.find(cat => cat.id === selectedCategory);
-    const showSections = { ...showFormSections, showPower: category?.showPowerType, showWarranty: category?.showWarranty };
+    const showSections = { ...showFormSections, showPower: category?.showPowerType, showWarranty: category?.showWarranty, showDimensions: category?.showDimensions };
     console.log('showSections', showSections);
     setShowFormSections(showSections);
   }, [selectedCategory]);
