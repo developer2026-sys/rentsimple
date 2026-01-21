@@ -7,7 +7,7 @@ const LocationSuggestionFieldPickup= ({ value, onChange, name = "location", requ
   const [loading, setLoading] = useState(false);
   const wrapperRef = useRef(null);
 
-  // Handle click outside
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
@@ -18,7 +18,6 @@ const LocationSuggestionFieldPickup= ({ value, onChange, name = "location", requ
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Update input when value prop changes
   useEffect(() => {
     if (value?.name) {
       setInputValue(value.name);
@@ -27,7 +26,7 @@ const LocationSuggestionFieldPickup= ({ value, onChange, name = "location", requ
     }
   }, [value]);
 
-  // Fetch suggestions with debounce
+ 
   useEffect(() => {
     const fetchSuggestions = async () => {
       if (!inputValue || inputValue.length < 3) {

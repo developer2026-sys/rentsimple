@@ -130,13 +130,20 @@ function ListingCreationFlow() {
     listAsActive: true,
     publishToFeed: false,
     pickUpAddress: '',
-    powerType: '', // ADD THIS
-    deliveryPrice: '', // ADD THIS
-    installationPrice: '', // ADD THIS
+    powerType: '',
+    deliveryPrice: '',
+    warrantyPrice: '',
+    installationPrice: '',
+    warranty: false,
     location: {
       city: '',
       state: '',
       zipCode: ''
+    },
+    dimensions: {
+      length: '',
+      width: '',
+      height: ''
     }
   });
 
@@ -177,7 +184,7 @@ function ListingCreationFlow() {
     setLoadingCurrentLocation(true);
 
     try {
-      // Check if geolocation is supported
+
       if (!navigator.geolocation) {
         toast.info('Geolocation is not supported by your browser', { containerId: 'listingPage' });
         setLoadingCurrentLocation(false);
@@ -190,7 +197,7 @@ function ListingCreationFlow() {
           const { latitude, longitude } = position.coords;
 
           try {
-            // Reverse geocode to get address
+
             const response = await fetch(
               `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
               {
@@ -262,31 +269,6 @@ function ListingCreationFlow() {
   }, [selectedCategory]);
 
   // Handle image file selection
-  // const handleImageChange = (e) => {
-  //   const files = Array.from(e.target.files);
-
-  //   if (files.length === 0) return;
-
-  //   // Only take the first file
-  //   const file = files[0];
-
-  //   // Validate file size (10MB max)
-  //   if (file.size > 10 * 1024 * 1024) {
-  //     toast.error(`${file.name} is too large. Max 10MB per image`, { containerId: 'listingPage' });
-  //     return;
-  //   }
-
-  //   // Replace existing image with new one
-  //   setImageFiles([file]);
-
-  //   // Create preview
-  //   const reader = new FileReader();
-  //   reader.onloadend = () => {
-  //     setImagePreviews([reader.result]);
-  //   };
-  //   reader.readAsDataURL(file);
-  // };
-
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
 
@@ -327,7 +309,6 @@ function ListingCreationFlow() {
       reader.readAsDataURL(file);
     });
   };
-  // Remove image
 
   // Handle click outside to close suggestions
   useEffect(() => {
@@ -410,7 +391,7 @@ function ListingCreationFlow() {
     setImagePreviews(imagePreviews.filter((_, i) => i !== index));
   };
 
-  // Upload images to server/cloud
+
   const uploadImages = async () => {
     if (imageFiles.length === 0) return [];
 
@@ -442,7 +423,7 @@ function ListingCreationFlow() {
     return uploadedImages;
   };
 
-  // Check Stripe onboarding status
+
   const checkStripeStatus = async () => {
     try {
       const token = localStorage.getItem('vendorToken');
@@ -459,12 +440,12 @@ function ListingCreationFlow() {
 
       const data = response.data;
 
-      // If already connected, return true to continue
+
       if (data.alreadyConnected) {
         return true;
       }
 
-      // If onboarding needed, show popup and return false
+
       if (data.onboardingUrl) {
         setStripeOnboardingData(data);
         setShowStripePopup(true);
@@ -489,7 +470,7 @@ function ListingCreationFlow() {
     }
   };
 
-  // Validate form data
+
   const validateStep = () => {
     if (step === 1) {
       if (!formData.title.trim()) {
@@ -508,8 +489,12 @@ function ListingCreationFlow() {
         toast.error('Please select the condition', { containerId: 'listingPage' });
         return false;
       }
-      if (!formData.powerType) { // ADD THIS
+      if (!formData.powerType) {
         toast.error('Please select the power type', { containerId: 'listingPage' });
+        return false;
+      }
+      if (formData.warranty && (!formData.warrantyPrice || formData.warrantyPrice <= 0)) {
+        toast.error('Please enter a valid warranty price', { containerId: 'listingPage' });
         return false;
       }
       if (!formData.pickUpAddress.trim()) {
@@ -567,56 +552,59 @@ function ListingCreationFlow() {
 
 
 
-  // Handle next step
+
   const handleNext = () => {
     if (validateStep()) {
       setStep(step + 1);
     }
   };
 
-  // Handle form submission with Stripe check
+
   const handleSubmit = async () => {
     if (!validateStep()) return;
 
     setLoading(true);
 
     try {
-      // 🎯 CHECK STRIPE STATUS FIRST
+
       toast.info('Checking payment setup...', { containerId: 'listingPage' });
       const stripeReady = await checkStripeStatus();
 
       if (!stripeReady) {
         toast.dismiss();
         setLoading(false);
-        return; // Stop submission if Stripe not ready
+        return;
       }
 
-      // Upload images
+
       toast.info('Uploading images...', { containerId: 'listingPage' });
       const images = await uploadImages();
 
-      // Prepare listing data
+
       const listingData = {
         title: formData.title,
         category: formData.category,
         brand: formData.brand,
         condition: formData.condition,
-        powerType: formData.powerType, // ADD THIS
-        warranty: formData.warranty, // ADD THIS
+        powerType: formData.powerType,
+        warranty: formData.warranty,
         rentPrice: parseFloat(formData.rentPrice),
         buyPrice: parseFloat(formData.buyPrice),
-        deliveryPrice: parseFloat(formData.deliveryPrice), // Converts to number
-        installationPrice: parseFloat(formData.installationPrice), // Converts to number
+        deliveryPrice: parseFloat(formData.deliveryPrice),
+        installationPrice: parseFloat(formData.installationPrice),
+        warranty: formData.warranty,
+        ...(formData.warranty && { warrantyPrice: parseFloat(formData.warrantyPrice) }),
         description: formData.description,
         images,
         listAsActive: formData.listAsActive,
         publishToFeed: formData.publishToFeed,
         pickUpAddress: formData.pickUpAddress,
-        location: formData.location
+        location: formData.location,
+        dimensions: formData.dimensions
       };
 
       // Submit to API
-      /* const response =  */await axios.post(
+      await axios.post(
         `${BASE_URL}/listings`,
         listingData,
         {
@@ -632,7 +620,7 @@ function ListingCreationFlow() {
         containerId: 'listingPage'
       });
 
-      // Redirect after 1.5 seconds
+
       setTimeout(() => {
         navigate('/vendordashboard');
       }, 1500);
@@ -653,27 +641,55 @@ function ListingCreationFlow() {
     }
   };
 
+  const renderDimensions = () => (
+    <div> {/* Dimensions */}
+      <label className="block text-sm font-semibold text-gray-700 mb-2">
+        Dimensions (Optional)
+      </label>
+      <div className="grid grid-cols-3 gap-4">
+        <div>
+          <input
+            type="text"
+            name="dimensions.length"
+            value={formData.dimensions.length}
+            onChange={handleInputChange}
+            placeholder='Length (e.g., 30")'
+            className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+          />
+        </div>
+        <div>
+          <input
+            type="text"
+            name="dimensions.width"
+            value={formData.dimensions.width}
+            onChange={handleInputChange}
+            placeholder='Width (e.g., 28")'
+            className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+          />
+        </div>
+        <div>
+          <input
+            type="text"
+            name="dimensions.height"
+            value={formData.dimensions.height}
+            onChange={handleInputChange}
+            placeholder='Height (e.g., 65")'
+            className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+          />
+        </div>
+      </div>
+      <p className="text-xs text-gray-500 mt-1">
+        Enter dimensions in inches (L × W × H)
+      </p>
+    </div>
+  );
+
   const renderPowerType = () => (
     <div>
       <label className="block text-sm font-semibold text-gray-700 mb-2">
         Power Type *
       </label>
       <div className="grid grid-cols-2 gap-3">
-        {/* {POWER_TYPE_OPTIONS.map((type) => (
-          <button
-            key={type}
-            type="button"
-            onClick={() =>
-              setFormData({ ...formData, powerType: type })
-            }
-            className={`py-3 rounded-lg font-semibold transition-all cursor-pointer ${formData.powerType === type
-              ? 'bg-[#024a47] text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-          >
-            {type}
-          </button>
-        ))} */}
         <select
           id="listing-power-type"
           name="powerType"
@@ -692,26 +708,43 @@ function ListingCreationFlow() {
     </div>);
   const renderWarranty = () => (
     <>
-      <div className="mb-3 grid grid-cols-2 gap-0 col-span-1">
-        <label htmlFor="listing-has-warranty" >Warranty</label>
-        <input
-          id="listing-has-warranty"
-          type="checkbox"
-          name="has-warranty"
-          checked={hasWarranty}
-          onChange={() => { setHasWarranty(!hasWarranty); }}
-        />
+      <div> {/* warranty */}
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Warranty
+        </label>
+        <div className="flex items-center space-x-3">
+          <button
+            type="button"
+            onClick={() => setFormData({ ...formData, warranty: !formData.warranty })}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all ${formData.warranty
+              ? 'bg-[#024a47] text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+          >
+            {formData.warranty ? 'Yes' : 'No'}
+          </button>
+        </div>
       </div>
-      {/* <label htmlFor="listing-warranty-text" className="col-span-full mb-1">Warranty Text</label> */}
-      <textarea
-        id="listing-warranty"
-        name="warranty"
-        value={formData.warranty || ''}
-        disabled={!hasWarranty}
-        onChange={handleInputChange}
-        placeholder="Enter warranty text"
-        className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none disabled:cursor-not-allowed focus:ring-2 focus:ring-[#024a47]"
-      />
+      {formData.warranty && (
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Warranty Price *
+          </label>
+          <div className="relative">
+            <span className="absolute left-4 top-3 text-gray-600">$</span>
+            <input
+              type="number"
+              name="warrantyPrice"
+              value={formData.warrantyPrice}
+              onChange={handleInputChange}
+              placeholder="49.99"
+              step="0.01"
+              min="0"
+              className="w-full pl-8 pr-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 
@@ -799,13 +832,6 @@ function ListingCreationFlow() {
                       className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
                     >
                       <option value="">Select category</option>
-                      {/* <option value="refrigerator">Refrigerator</option>
-                      <option value="washer">Washing Machine</option>
-                      <option value="dryer">Dryer</option>
-                      <option value="dishwasher">Dishwasher</option>
-                      <option value="oven">Oven</option>
-                      <option value="microwave">Microwave</option>
-                      <option value="other">Other</option> */}
                       {LISTING_CATEGORIES?.sort((a, b) => a.label.localeCompare(b.label)).map((cat) => (
                         <option key={cat.id} value={cat.id}>
                           {cat.label}
@@ -826,13 +852,6 @@ function ListingCreationFlow() {
                       className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
                     >
                       <option value="">Select subcategory</option>
-                      {/* <option value="refrigerator">Refrigerator</option>
-                      <option value="washer">Washing Machine</option>
-                      <option value="dryer">Dryer</option>
-                      <option value="dishwasher">Dishwasher</option>
-                      <option value="oven">Oven</option>
-                      <option value="microwave">Microwave</option>
-                      <option value="other">Other</option> */}
                       {subcategoryList?.sort((a, b) => a.label.localeCompare(b.label))?.map((subcat) => (
                         <option key={subcat.id} value={subcat.id}>
                           {subcat.label}
@@ -867,36 +886,12 @@ function ListingCreationFlow() {
                       className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
                     >
                       <option value="">Select condition</option>
-                      {/* <option value="refrigerator">Refrigerator</option>
-                      <option value="washer">Washing Machine</option>
-                      <option value="dryer">Dryer</option>
-                      <option value="dishwasher">Dishwasher</option>
-                      <option value="oven">Oven</option>
-                      <option value="microwave">Microwave</option>
-                      <option value="other">Other</option> */}
                       {CONDITION_OPTIONS?.map((cond) => (
                         <option key={cond.value} value={cond.value}>
                           {cond.label}
                         </option>
                       ))}
                     </select>
-                    {/* <div className="grid grid-cols-3 gap-3">
-                      {['New', 'Like New', 'Good'].map((cond) => (
-                        <button
-                          key={cond}
-                          type="button"
-                          onClick={() =>
-                            setFormData({ ...formData, condition: cond })
-                          }
-                          className={`py-3 rounded-lg font-semibold transition-all cursor-pointer ${formData.condition === cond
-                            ? 'bg-[#024a47] text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                        >
-                          {cond}
-                        </button>
-                      ))}
-                    </div> */}
                   </div>
                 </div>
 
@@ -945,37 +940,17 @@ function ListingCreationFlow() {
                     />
                   </div>
                 </div>
+
+                {showFormSections.showDimensions ? (renderDimensions()) : null}
                 {showFormSections.showPower ? (renderPowerType()) : null}
                 {showFormSections.showWarranty ? (renderWarranty()) : null}
-                {/* <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Power Type *
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {['Electric', 'Gas', 'Other', 'Warranty'].map((type) => (
-                      <button
-                        key={type}
-                        type="button"
-                        onClick={() =>
-                          setFormData({ ...formData, powerType: type })
-                        }
-                        className={`py-3 rounded-lg font-semibold transition-all cursor-pointer ${formData.powerType === type
-                          ? 'bg-[#024a47] text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                      >
-                        {type}
-                      </button>
-                    ))}
-                  </div>
-                </div> */}
                 <div ref={pickupAddressRef} className="relative">
-                  <label htmlFor="listing-loc-address" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="listing-pickup-address" className="block text-sm font-semibold text-gray-700 mb-2">
                     Pickup Address *
                   </label>
                   <div className="relative">
                     <input
-                      id="listing-loc-address"
+                      id="listing-pickup-address"
                       type="text"
                       name="pickUpAddress"
                       value={formData.pickUpAddress}
@@ -987,12 +962,12 @@ function ListingCreationFlow() {
                       disabled={loadingCurrentLocation}
                     />
 
-                    {/* Current Location Button */}
+
                     <button
                       type="button"
                       onClick={getCurrentLocation}
                       disabled={loadingCurrentLocation}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#024a47] hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#024a47] hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
                       title="Use current location"
                     >
                       {loadingCurrentLocation ? (
@@ -1009,7 +984,7 @@ function ListingCreationFlow() {
                     </button>
                   </div>
 
-                  {/* Loading Spinner for suggestions */}
+
                   {loadingPickupSuggestions && (
                     <div className="absolute right-3 top-11 text-gray-400 pointer-events-none">
                       <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -1019,7 +994,7 @@ function ListingCreationFlow() {
                     </div>
                   )}
 
-                  {/* Suggestions Dropdown */}
+
                   {showPickupSuggestions && pickupSuggestions.length > 0 && (
                     <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto mt-1">
                       {pickupSuggestions.map((suggestion, index) => (
@@ -1034,7 +1009,7 @@ function ListingCreationFlow() {
                     </ul>
                   )}
 
-                  {/* No Results Message */}
+
                   {showPickupSuggestions && !loadingPickupSuggestions && formData.pickUpAddress && formData.pickUpAddress.length >= 2 && pickupSuggestions.length === 0 && (
                     <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 px-4 py-3 text-sm text-gray-500">
                       No locations found
@@ -1156,9 +1131,7 @@ function ListingCreationFlow() {
                       const file = e.target.files[0];
                       if (!file) return;
 
-                      // your existing code...
                       // after processing:
-
                       e.target.value = ""; // reset safely here
                     }}
                     className="hidden"
@@ -1175,7 +1148,6 @@ function ListingCreationFlow() {
                       PNG, JPG up to 10MB (3 image only)
                     </p>
                   </label>
-
 
                   {imagePreviews.length > 0 && (
                     <div className="grid grid-cols-3 gap-4 mt-4">
@@ -1201,17 +1173,17 @@ function ListingCreationFlow() {
                       ))}
                     </div>
                   )}
-                </div>
-              </div>
-            )}
+                </div >
+              </div >
+            )
+            }
 
-
+            {/* make into render function */}
             {step === 3 && (
               <div className="space-y-4">
                 <h2 className="text-xl font-bold text-[#024a47] mb-4">
                   Description & Publish
                 </h2>
-
                 <div>
                   <label htmlFor="listing-description" className="block text-sm font-semibold text-gray-700 mb-2">
                     Description * (Min 25 characters)
@@ -1229,9 +1201,6 @@ function ListingCreationFlow() {
                     {formData.description.length} / 2000 characters
                   </p>
                 </div>
-
-
-
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h3 className="font-semibold text-gray-900 mb-3">Summary</h3>
                   <div className="space-y-2 text-sm">
@@ -1263,7 +1232,6 @@ function ListingCreationFlow() {
                         {imageFiles.length} uploaded
                       </span>
                     </div>
-
                     <div className="flex justify-between">
                       <span className="text-gray-600">Power Type:</span>
                       <span className="font-semibold capitalize">
@@ -1282,11 +1250,24 @@ function ListingCreationFlow() {
                         ${formData.installationPrice}
                       </span>
                     </div>
-                  </div>
-                </div>
-              </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Warranty:</span>
+                      <span className="font-semibold">
+                        {formData.warranty ? 'Yes' : 'No'}
+                      </span>
+                    </div>
+                    {formData.warranty && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Warranty Price:</span>
+                        <span className="font-semibold">
+                          ${formData.warrantyPrice}
+                        </span>
+                      </div>
+                    )}
+                  </div >
+                </div >
+              </div >
             )}
-
 
             <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
               {step > 1 && (
@@ -1322,9 +1303,9 @@ function ListingCreationFlow() {
                 </button>
               )}
             </div>
-          </div>
-        </div>
-      </div>
+          </div >
+        </div >
+      </div >
     </>
   );
 }

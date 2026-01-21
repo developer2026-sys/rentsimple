@@ -271,7 +271,7 @@ const VendorEditModal = ({ vendor, isOpen, onClose, onSave }) => {
           </div>
   
           <div className="p-6 space-y-6">
-            {/* Basic Information */}
+         
             <div className="bg-gray-50 rounded-lg p-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <User className="h-5 w-5 mr-2" />
@@ -297,7 +297,6 @@ const VendorEditModal = ({ vendor, isOpen, onClose, onSave }) => {
               </div>
             </div>
   
-            {/* Business Information */}
             <div className="bg-gray-50 rounded-lg p-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <Store className="h-5 w-5 mr-2" />
@@ -341,7 +340,7 @@ const VendorEditModal = ({ vendor, isOpen, onClose, onSave }) => {
               </div>
             </div>
   
-            {/* Subscription Information */}
+          
             {vendor.subscription && (
               <div className="bg-gray-50 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -365,7 +364,6 @@ const VendorEditModal = ({ vendor, isOpen, onClose, onSave }) => {
               </div>
             )}
   
-            {/* Performance Stats */}
             <div className="bg-gray-50 rounded-lg p-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <BarChart3 className="h-5 w-5 mr-2" />
@@ -387,7 +385,7 @@ const VendorEditModal = ({ vendor, isOpen, onClose, onSave }) => {
               </div>
             </div>
   
-            {/* Account Timeline */}
+          
             <div className="bg-gray-50 rounded-lg p-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                 <Calendar className="h-5 w-5 mr-2" />

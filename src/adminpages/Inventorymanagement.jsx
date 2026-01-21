@@ -982,7 +982,7 @@ const getInventoryStats = () => {
                 <form className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-  {/* Product Title */}
+
   <div>
     <label className="block text-sm font-medium text-gray-700 mb-2">
       Product Title
@@ -997,7 +997,7 @@ const getInventoryStats = () => {
     />
   </div>
 
-  {/* Brand */}
+
   <div>
     <label className="block text-sm font-medium text-gray-700 mb-2">
       Brand
@@ -1012,7 +1012,7 @@ const getInventoryStats = () => {
     />
   </div>
 
-  {/* Category */}
+  
   <div>
     <label className="block text-sm font-medium text-gray-700 mb-2">
       Category
@@ -1034,7 +1034,7 @@ const getInventoryStats = () => {
     </select>
   </div>
 
-  {/* Condition */}
+
   <div>
     <label className="block text-sm font-medium text-gray-700 mb-2">
       Condition
@@ -1053,7 +1053,7 @@ const getInventoryStats = () => {
     </select>
   </div>
 
-  {/* Rent Price */}
+
   <div>
     <label className="block text-sm font-medium text-gray-700 mb-2">
       Rent Price ($/month)
@@ -1070,7 +1070,7 @@ const getInventoryStats = () => {
     />
   </div>
 
-  {/* Buy Price */}
+
   <div>
     <label className="block text-sm font-medium text-gray-700 mb-2">
       Buy Price ($)
@@ -1087,7 +1087,7 @@ const getInventoryStats = () => {
     />
   </div>
 
-  {/* Status */}
+
   <div>
     <label className="block text-sm font-medium text-gray-700 mb-2">
       Status
@@ -1106,7 +1106,6 @@ const getInventoryStats = () => {
     </select>
   </div>
 
-  {/* Publish to Feed */}
 
 </div>
 
@@ -1167,7 +1166,7 @@ const getInventoryStats = () => {
                   </div>
 
               
-            {/* Description */}
+         
 <div>
   <label className="block text-sm font-medium text-gray-700 mb-2">
     Description

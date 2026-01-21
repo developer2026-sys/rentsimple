@@ -111,7 +111,13 @@ export default function VendorRequestsListPage() {
       const data = await response.json();
       console.log("DATA DATA")
       console.log(data)
-      setRequests(data.requests || []);
+      
+     
+      const sortedRequests = (data.requests || []).sort((a, b) => {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      });
+      
+      setRequests(sortedRequests);
     } catch (e) {
       console.error('Error fetching requests:', e);
       toast.error('Error while fetching requests. Please try again.',{containerId:"vendorRequestList"});

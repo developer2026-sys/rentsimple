@@ -10,7 +10,6 @@ import DashboardHeader from "../components/DashboardHeader";
 function VendorDashboard() {
   const navigate = useNavigate();
 
-  // State management
   const [showStripePopup, setShowStripePopup] = useState(false);
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,7 +17,7 @@ function VendorDashboard() {
   // const [stripeOnboardingData, setStripeOnboardingData] = useState()
   const [stripeLoading, setStripeLoading] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  // Fetch dashboard data on component mount
+
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -105,7 +104,7 @@ function VendorDashboard() {
 
       const data = response.data;
 
-      // If already connected, close popup and refresh dashboard
+
       if (data.alreadyConnected) {
         setStripeLoading(false);
         setShowStripePopup(false);
@@ -114,11 +113,11 @@ function VendorDashboard() {
         return;
       }
 
-      // If onboarding URL exists, redirect IMMEDIATELY
+
       if (data.onboardingUrl) {
-        // Redirect without waiting for state updates
+
         window.location.href = data.onboardingUrl;
-        // Note: Code below won't execute due to redirect, but kept for safety
+
         return;
       }
 
@@ -212,7 +211,7 @@ function VendorDashboard() {
   ];
 
   const recentListings = dashboardData?.recentListings?.map(listing => {
-    // Find the request once and reuse it
+
     const relatedRequest = dashboardData?.requests?.find(
       request => request.listing?._id === listing._id || request.listing === listing._id
     );
@@ -224,8 +223,8 @@ function VendorDashboard() {
       status: listing.status.charAt(0).toUpperCase() + listing.status.slice(1),
       boosted: listing.visibility?.isBoosted || false,
       image: listing.images?.[0]?.url,
-      deliveryType: listing.deliveryType, // From backend
-      request: relatedRequest, // Full request object if needed
+      deliveryType: listing.deliveryType,
+      request: relatedRequest,
       renterMobile: relatedRequest?.user?.mobile,
       renterId: relatedRequest?.user?._id
     };
@@ -236,7 +235,7 @@ function VendorDashboard() {
 
   const handleRenewListing = async (listingId) => {
     try {
-      const token = localStorage.getItem('vendorToken'); // Changed from 'token' to 'vendorToken'
+      const token = localStorage.getItem('vendorToken');
 
       const response = await axios.post(
         `${BASE_URL}/renewListing`,

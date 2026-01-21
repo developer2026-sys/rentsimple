@@ -17,7 +17,7 @@ export default function UnitPurchasePage() {
   const [expiry, setExpiry] = useState('');
   const [cvc, setCvc] = useState('');
   const [savedPaymentMethod, setSavedPaymentMethod] = useState(null);
-const [useSavedCard, setUseSavedCard] = useState(true); // Default to saved card if available
+const [useSavedCard, setUseSavedCard] = useState(true); 
 
   const getServiceFee = () => {
     const rentPrice = request?.listing?.pricing?.rentPrice || 60;
@@ -58,10 +58,9 @@ const [useSavedCard, setUseSavedCard] = useState(true); // Default to saved card
     if (showPayment && savedPaymentMethod && elements) {
       const cardExpiryElement = elements.getElement(CardExpiryElement);
       
-      // Pre-fill expiry date if available
+    
       if (cardExpiryElement && savedPaymentMethod.expiryDate) {
-        // Stripe automatically formats MM/YY
-        // We can't directly set values, but we can show it in the UI
+      
       }
     }
   }, [showPayment, savedPaymentMethod, elements]);
@@ -99,12 +98,12 @@ const [useSavedCard, setUseSavedCard] = useState(true); // Default to saved card
   };
 
   const handleApprove = async () => {
-    // Show payment screen
+    
     setShowPayment(true);
   };
 
 
-  // Add this function before the return statement
+ 
 const getLightboxImages = () => {
   const images = [];
   if (request.images && request.images.length > 0) {
@@ -137,23 +136,20 @@ const handlePayment = async () => {
 
     let paymentMethodId;
 
-    // Check if using saved payment method
+   
     if (useSavedCard && savedPaymentMethod) {
-      // If we have a saved Stripe Payment Method ID, use it
+      
       if (savedPaymentMethod.paymentMethodId) {
         paymentMethodId = savedPaymentMethod.paymentMethodId;
         console.log('Using saved payment method ID:', paymentMethodId);
       } else {
-        // No saved payment method ID, but user has saved card info
-        // We'll need to create a new payment method with the saved card details
-        // For security, we can't recreate it from saved data
-        // So we need to ask user to re-enter the card or use new card option
+       
         toast.error('Saved card needs to be re-verified. Please select "Use a Different Card" and re-enter your card details.', {containerId:"renterConfirmationPage"});
         setProcessing(false);
         return;
       }
     } else {
-      // Create new payment method using Stripe Elements
+      
       if (!elements) {
         toast.error('Payment form not ready. Please try again.', {containerId:"renterConfirmationPage"});
         setProcessing(false);
@@ -226,8 +222,7 @@ const handlePayment = async () => {
 
     console.log('✅ Backend response:', response.data);
 
-    // Backend already confirmed payment - no need to call stripe.confirmCardPayment
-   
+  
     const confNumber = response.data.orderId || 
                        response.data.order?._id || 
                        Math.floor(10000 + Math.random() * 90000);
@@ -249,7 +244,7 @@ const handlePayment = async () => {
     if (e.response?.data?.error) {
       const errorMsg = e.response.data.error;
       
-      // Don't show raw error messages to users
+
       if (errorMsg.toLowerCase().includes('vendor')) {
         userFriendlyMessage = 'Vendor payment setup incomplete. Please contact support.';
       } else if (errorMsg.toLowerCase().includes('stripe')) {
@@ -259,7 +254,7 @@ const handlePayment = async () => {
       } else if (errorMsg.toLowerCase().includes('customer')) {
         userFriendlyMessage = 'Account setup error. Please contact support.';
       } else {
-        // For other errors, show a generic message
+     
         userFriendlyMessage = 'Unable to complete your order. Please try again or contact support.';
       }
     } else if (e.message) {
@@ -372,14 +367,14 @@ const handlePayment = async () => {
   
 
   const handleDeny = async () => {
-    // Add your deny logic here
+   
     if (window.confirm('Are you sure you want to deny this offer?')) {
       setProcessing(true);
       try {
         const id = searchParams.get('id');
         let response = await axios.patch(`${BASE_URL}/rejectRequestOffer/${id}`)
         
-        // Success alert
+        
         toast.success('Offer denied successfully',{containerId:"renterConfirmationPage"});
         
         navigate('/appliance')
@@ -423,7 +418,7 @@ const handlePayment = async () => {
     if (request?.deliveryType === 'pickup') {
       return 0;
     }
-    return request?.listing?.deliveryPrice || 30; // Use dynamic price from listing
+    return request?.listing?.deliveryPrice || 30;
   };
 
 
@@ -440,7 +435,7 @@ const handlePayment = async () => {
     const warrantyFee = getWarrantyFee(); 
     const deliveryFee = getDeliveryFee();
     const installationFee = getInstallationFee();
-    const subtotal = rentPrice + warrantyFee + deliveryFee + installationFee; // Added warrantyFee
+    const subtotal = rentPrice + warrantyFee + deliveryFee + installationFee; 
     const serviceFee = parseFloat(getServiceFee()); 
     const totalBeforeCredits = subtotal + serviceFee;
     
@@ -450,38 +445,27 @@ const handlePayment = async () => {
     return finalTotal;
   };
 
-// // Helper to get amount before credits
-// const getTotalBeforeCredits = () => {
-//   const rentPrice = request?.listing?.pricing?.rentPrice || 60;
-//   const deliveryFee = getDeliveryFee();
-//   const installationFee = getInstallationFee();
-//   const subtotal = rentPrice + deliveryFee + installationFee;
-//   const serviceFee = 12;
-//   return subtotal + serviceFee;
-// };
 const getTotalBeforeCredits = () => {
   const rentPrice = request?.listing?.pricing?.rentPrice || 60;
-  const warrantyFee = getWarrantyFee(); // NEW
+  const warrantyFee = getWarrantyFee(); 
   const deliveryFee = getDeliveryFee();
   const installationFee = getInstallationFee();
-  const subtotal = rentPrice + warrantyFee + deliveryFee + installationFee; // Added warrantyFee
+  const subtotal = rentPrice + warrantyFee + deliveryFee + installationFee; 
   const serviceFee = parseFloat(getServiceFee());
   return subtotal + serviceFee;
 };
 
 
-// Helper to get credits applied
 const getCreditsApplied = () => {
   const totalBefore = getTotalBeforeCredits();
-  // If credits would bring total below $1, only apply credits to leave $1 remaining
+  
   if (credits >= totalBefore) {
     return totalBefore - 1;
   }
   return credits;
 };
 
-  // Show Payment Screen
- // Show Payment Screen
+
  if (showPayment && !orderConfirmed) {
   const elementOptions = {
     style: {
@@ -806,8 +790,7 @@ const getCreditsApplied = () => {
   );
 }
 
-  // Show Order Confirmed Screen
- // Show Order Confirmed Screen
+ 
 if (orderConfirmed) {
   return (<>
   <ToastContainer containerId={"renterConfirmationPage"}/>
