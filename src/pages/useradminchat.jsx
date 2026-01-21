@@ -1,4 +1,4 @@
-// SupportChatWidget.jsx
+
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { 
   MessageCircle, 
@@ -40,25 +40,24 @@ const SupportChatWidget = () => {
     }
   }, [isOpen]);
 
-// Replace your socket listeners useEffect with this fixed version:
 
 useEffect(() => {
   if (!socketRef?.socket) return;
 
   const socket = socketRef.socket;
 
-  // Listen for new messages from admin
+ 
   socket.on('newSupportMessage', (data) => {
     console.log('New support message received:', data);
     
-    // ⭐ FIX: Handle both data structures
+  
     const messageData = data.message || data;
     const messageText = messageData.message || data.message?.message || '';
     const messageId = messageData._id || data.messageId || data.id;
     const timestamp = messageData.createdAt || data.timestamp;
     const sentBy = messageData.sentBy || data.sendBy;
     
-    // Only add admin messages
+  
     if (sentBy === 'admin') {
       const newMsg = {
         id: messageId,
@@ -68,7 +67,7 @@ useEffect(() => {
         read: false
       };
       
-      // ⭐ Prevent duplicates
+    
       setMessages(prev => {
         const exists = prev.some(msg => msg.id === messageId);
         if (exists) {
@@ -79,17 +78,17 @@ useEffect(() => {
         return [...prev, newMsg];
       });
       
-      // Show unread indicator if chat is closed or minimized
+     
       if (!isOpen || isMinimized) {
         setHasUnread(true);
       } else {
-        // Auto-mark as read if chat is open
+     
         setTimeout(() => markMessagesAsRead(), 500);
       }
     }
   });
 
-  // Listen for read receipts from admin
+ 
   socket.on('supportMessageRead', (data) => {
     console.log('Support message read by admin:', data);
     
@@ -114,7 +113,7 @@ useEffect(() => {
     try {
       setLoading(true);
       
-      // Use the correct endpoint
+  
       const userTicketResponse = await axios.get(`${BASE_URL}/support/my-ticket`, {
         params: {
           userType: 'user'
@@ -171,7 +170,7 @@ useEffect(() => {
         )
       );
   
-      // Emit socket event to notify admin
+    
       if (socketRef?.socket) {
         socketRef.socket.emit('supportMessagesRead', {
           ticketId: ticketId,
@@ -220,16 +219,16 @@ useEffect(() => {
       setMessages([...messages, newMsg]);
       setNewMessage('');
       
-      const isNewTicket = !ticketId; // Check if this was a new ticket
+      const isNewTicket = !ticketId; 
       
       if (!ticketId) {
         setTicketId(response.data.ticketId);
       }
   
-      // Emit socket event to backend
+      
       if (socketRef?.socket) {
         if (isNewTicket) {
-          // EMIT NEW TICKET EVENT FOR NEW TICKETS
+        
           socketRef.socket.emit('newTicketCreated', {
             ticketId: response.data.ticketId,
             message: newMessage.trim(),
@@ -241,7 +240,7 @@ useEffect(() => {
           });
           console.log('✅ Emitted newTicketCreated event');
         } else {
-          // EMIT REGULAR MESSAGE EVENT FOR EXISTING TICKETS
+        
           socketRef.socket.emit('sendSupportMessage', {
             ticketId: response.data.ticketId || ticketId,
             message: newMessage.trim(),
@@ -300,7 +299,6 @@ useEffect(() => {
         }
       });
       
-      // EMIT SOCKET EVENT TO NOTIFY ADMIN
       if (socketRef?.socket) {
         socketRef.socket.emit('ticketClosed', {
           ticketId: ticketId,
@@ -321,13 +319,13 @@ useEffect(() => {
     }
   };
 
-  // Socket listeners
+  
 useEffect(() => {
     if (!socketRef?.socket) return;
   
     const socket = socketRef.socket;
   
-    // Listen for new messages from admin
+   
     socket.on('newSupportMessage', (data) => {
       console.log('New support message received:', data);
       
@@ -341,17 +339,16 @@ useEffect(() => {
         };
         setMessages(prev => [...prev, newMsg]);
         
-        // Show unread indicator if chat is closed or minimized
+       
         if (!isOpen || isMinimized) {
           setHasUnread(true);
         } else {
-          // Auto-mark as read if chat is open
+        
           setTimeout(() => markMessagesAsRead(), 500);
         }
       }
     });
-  
-    // Listen for read receipts from admin
+
     socket.on('supportMessageRead', (data) => {
       console.log('Support message read by admin:', data);
       

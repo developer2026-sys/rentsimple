@@ -87,7 +87,7 @@ setTimeout(() => {
   
   <div className="min-h-screen bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-2xl w-full max-w-md p-8">
-        {/* Header */}
+     
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="bg-gradient-to-br from-purple-600 to-purple-800 p-3 rounded-full">
@@ -98,9 +98,9 @@ setTimeout(() => {
           <p className="text-gray-500 text-sm mt-2">Secure Reset</p>
         </div>
 
-        {/* Form */}
+        
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Email Field */}
+        
           <div>
             <label htmlFor="email" className="block text-gray-700 font-medium text-sm mb-2">
               Email Address
@@ -124,7 +124,7 @@ setTimeout(() => {
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
           </div>
 
-          {/* Password Field */}
+        
           <div>
             <label htmlFor="password" className="block text-gray-700 font-medium text-sm mb-2">
               Password
@@ -155,9 +155,7 @@ setTimeout(() => {
             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
           </div>
 
-          {/* Remember & Forgot */}
-        
-          {/* Submit Button */}
+    
           <button
             type="submit"
             disabled={loading}
@@ -167,8 +165,7 @@ setTimeout(() => {
           </button>
         </form>
 
-        {/* Footer */}
-    
+      
       </div>
     </div>
   </>

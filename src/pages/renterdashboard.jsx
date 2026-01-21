@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Package, Eye, MessageCircleCode, MessageSquare, DollarSign, Home, LogOut, Clock, CheckCircle, XCircle, FileText, CreditCard, MessageCircle, User, CrossIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
@@ -20,8 +20,9 @@ function RenterDashboard() {
   const [rejectReason, setRejectReason] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [processingReject, setProcessingReject] = useState(false);
-
-  // Fetch dashboard data on component mount
+  const [newMessagesLength, setNewMessagesLength] = useState(0)
+  const menuRef = useRef();
+  const [open, setOpen] = useState(false)
   useEffect(() => {
     fetchDashboardData();
   }, []);
@@ -69,6 +70,24 @@ function RenterDashboard() {
   };
 
 
+  const getNewMessages = async () => {
+    try {
+      let token = localStorage.getItem('token')
+      let response = await axios.get(`${BASE_URL}/unSeenMessagesLength`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      setNewMessagesLength(response.data.messagesLength)
+    } catch (e) {
+
+    }
+  }
+
+  useEffect(() => {
+    getNewMessages()
+  }, [])
 
   const downloadReceipt = (receipt) => {
     try {
@@ -186,7 +205,7 @@ function RenterDashboard() {
     );
   }
 
-  // Calculate stats from actual data arrays
+  // Calculate stats from actual data arraysF
   const activeRentalsCount = dashboardData?.activeRentals?.length || 0;
   const pendingApprovalsCount = dashboardData?.pendingApprovals?.length || 0;
   const completedOrdersCount = dashboardData?.completedOrders?.length || 0;

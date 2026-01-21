@@ -1,4 +1,4 @@
-// Create a new file: ImageLightbox.jsx
+
 import React, { useState, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 
@@ -57,7 +57,7 @@ const ImageLightbox = ({ images, isOpen, onClose, startIndex = 0 }) => {
       className="fixed inset-0 z-50 bg-black bg-opacity-95 flex items-center justify-center"
       onClick={handleBackdropClick}
     >
-      {/* Close Button */}
+      
       <button
         onClick={onClose}
         className="absolute top-4 right-4 z-50 w-12 h-12 flex items-center justify-center bg-gray-900 hover:bg-gray-800 rounded-full transition-all shadow-lg"
@@ -65,7 +65,7 @@ const ImageLightbox = ({ images, isOpen, onClose, startIndex = 0 }) => {
         <X className="w-8 h-8 text-white" strokeWidth={2} />
       </button>
 
-      {/* Zoom Toggle */}
+    
       <button
         onClick={() => setIsZoomed(!isZoomed)}
         className="absolute top-4 right-20 z-50 w-12 h-12 flex items-center justify-center bg-gray-900 hover:bg-gray-800 rounded-full transition-all shadow-lg"
@@ -77,7 +77,7 @@ const ImageLightbox = ({ images, isOpen, onClose, startIndex = 0 }) => {
         )}
       </button>
 
-      {/* Previous Button */}
+    
       {images.length > 1 && (
         <button
           onClick={goToPrev}
@@ -87,7 +87,7 @@ const ImageLightbox = ({ images, isOpen, onClose, startIndex = 0 }) => {
         </button>
       )}
 
-      {/* Next Button */}
+  
       {images.length > 1 && (
         <button
           onClick={goToNext}
@@ -97,7 +97,7 @@ const ImageLightbox = ({ images, isOpen, onClose, startIndex = 0 }) => {
         </button>
       )}
 
-      {/* Image Container */}
+      
       <div className="relative w-full h-full flex items-center justify-center p-4">
         <img
           src={images[currentIndex].url}
@@ -109,7 +109,7 @@ const ImageLightbox = ({ images, isOpen, onClose, startIndex = 0 }) => {
         />
       </div>
 
-      {/* Image Counter & Label */}
+  
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-6 py-3 rounded-full">
         <p className="text-lg font-semibold">{images[currentIndex].label}</p>
         {images.length > 1 && (
@@ -119,7 +119,7 @@ const ImageLightbox = ({ images, isOpen, onClose, startIndex = 0 }) => {
         )}
       </div>
 
-      {/* Thumbnails */}
+     
       {images.length > 1 && (
         <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex gap-2 bg-black bg-opacity-50 p-3 rounded-2xl">
           {images.map((img, idx) => (

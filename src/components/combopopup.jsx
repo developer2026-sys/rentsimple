@@ -7,7 +7,7 @@ import { ArrowBigLeft ,User} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import LocationSuggestionField from "./locationsuggestionfield";
 import LocationSuggestionFieldPickup from "./locationsuggestionpickup";
-const FIXED_WARRANTY_FEE = 15;
+let FIXED_WARRANTY_FEE = 15;
 const ComboPopup = ({open,onClose,newMessagesLength,setOpen,menuRef,user,selectedComboAppliance, handlePlugTypeSelect,setShowComboPopup }) => {
   const [selectedDeliveryOption, setSelectedDeliveryOption] = useState('');
   const [selectedInstallOption, setSelectedInstallOption] = useState('');
@@ -53,7 +53,11 @@ const [newPickupAddress, setNewPickupAddress] = useState({
   
   const navigate=useNavigate();
 
+  console.log("SELECTEDCOMBO")
+console.log(selectedComboAppliance)
 
+
+FIXED_WARRANTY_FEE=selectedComboAppliance.warrantyPrice
   const wrapperRefs = {
     street: useRef(null),
     city: useRef(null),
@@ -61,6 +65,41 @@ const [newPickupAddress, setNewPickupAddress] = useState({
     country: useRef(null)
   };
 
+
+  useEffect(() => {
+    if (user?.deliveryAddress) {
+      // Parse the delivery address string into components
+      const parseAddress = (addressString) => {
+        // Assuming format: "street, city, state zipCode, country"
+        // or similar variations
+        const parts = addressString.split(',').map(p => p.trim());
+        
+        let parsed = {
+          street: '',
+          city: '',
+          state: '',
+          zipCode: '',
+          country: ''
+        };
+        
+        if (parts.length >= 1) parsed.street = parts[0];
+        if (parts.length >= 2) parsed.city = parts[1];
+        if (parts.length >= 3) {
+          // Split state and zipCode (assuming format like "State 12345")
+          const stateZip = parts[2].split(' ');
+          parsed.state = stateZip[0];
+          parsed.zipCode = stateZip.slice(1).join(' ');
+        }
+        if (parts.length >= 4) parsed.country = parts[3];
+        
+        return parsed;
+      };
+      
+      const parsedAddress = parseAddress(user.deliveryAddress);
+      setDeliveryAddress(parsedAddress);
+    }
+  }, [user]);
+  
   // Handle click outside to close suggestions
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -246,13 +285,13 @@ useEffect(() => {
       const fullStreet = suggestion.houseNumber 
         ? `${suggestion.houseNumber} ${suggestion.street}`.trim()
         : suggestion.street || suggestion.displayName.split(',')[0];
-
+  
       setDeliveryAddress({
         street: fullStreet,
-        city: suggestion.city || deliveryAddress.city,
-        state: suggestion.state || deliveryAddress.state,
-        zipCode: suggestion.zipCode || deliveryAddress.zipCode,
-        country: suggestion.country || deliveryAddress.country
+        city: suggestion.city || '',  // Changed from deliveryAddress.city
+        state: suggestion.state || '',  // Changed from deliveryAddress.state
+        zipCode: suggestion.zipCode || '',  // Changed from deliveryAddress.zipCode
+        country: suggestion.country || ''  // Changed from deliveryAddress.country
       });
     } else if (field === 'city') {
       setDeliveryAddress(prev => ({
@@ -370,8 +409,7 @@ useEffect(() => {
     <ToastContainer containerId={"combopopup"}/>
     
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
-    
+     
       <div className="p-4 sm:p-6 md:p-8">
       <h1 style={{paddingLeft:'5rem'}} className="text-center text-3xl sm:text-4xl font-bold text-gray-900">
    MARKETPLACE
@@ -439,11 +477,11 @@ useEffect(() => {
 
       <div className="flex-1 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full bg-white rounded-2xl border border-gray-200 p-8 shadow-lg">
-          {/* Back Button */}
+          
           <button 
   onClick={(e) => {
     e.stopPropagation();
-    onClose();  // Use the passed function instead
+    onClose();  
   }}
   className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors group"
 > 
@@ -463,7 +501,7 @@ useEffect(() => {
             <span className="font-medium">Back to Appliances</span>
           </button>
 
-          {/* Product Summary */}
+        
           <div className="mb-8 text-center">
             <h3 className="text-sm font-semibold text-gray-900 mb-2">
               {selectedComboAppliance?.vendor?.name || "Vendor"}
@@ -475,7 +513,7 @@ useEffect(() => {
            
           </div>
 
-          {/* Product Image */}
+          
           <div className="flex justify-center mb-8">
             <img 
               src={selectedComboAppliance?.images?.find(img => img.isPrimary)?.url || selectedComboAppliance?.images?.[0]?.url || 'https://via.placeholder.com/200'} 
@@ -488,13 +526,13 @@ useEffect(() => {
   <div className="mb-8 text-center p-4 bg-gray-50 rounded-lg">
     <div className="flex justify-between items-start mb-4">
       <h3 className="text-lg font-bold text-gray-900">PICKUP ADDRESS</h3>
-      <button
+      {/* <button
         type="button"
         onClick={() => setIsEditingPickupAddress(!isEditingPickupAddress)}
         className="text-[#024a47] hover:text-[#036661] text-sm font-medium"
       >
         {isEditingPickupAddress ? 'Cancel' : 'Change Address'}
-      </button>
+      </button> */}
     </div>
     
     {!isEditingPickupAddress ? (
@@ -567,7 +605,7 @@ useEffect(() => {
     )}
   </div>
 )}
-          {/* Pickup or Delivery Section */}
+          
           <div className="mb-8 text-center justify-center items-center flex flex-col">
             <h3 className="text-lg font-bold text-gray-900 mb-4">PICKUP OR DELIVERY</h3>
             <div className="space-y-3">
@@ -596,12 +634,12 @@ useEffect(() => {
             </div>
           </div>
 
-          {/* Delivery Address - Show only when delivery is selected */}
+        
           {selectedDeliveryOption === 'delivery' && (
             <div className="mb-8 text-center flex flex-col justify-center items-center p-4 bg-gray-50 rounded-lg">
               <h3 className="text-lg font-bold text-gray-900 mb-4">DELIVERY ADDRESS</h3>
               <div className="space-y-3">
-                {/* Street Address */}
+                
                 <div ref={wrapperRefs.street} className="relative">
                   <input
                     type="text"
@@ -617,7 +655,7 @@ useEffect(() => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  {/* City */}
+                 
                   <div ref={wrapperRefs.city} className="relative">
                     <input
                       type="text"
@@ -632,7 +670,7 @@ useEffect(() => {
                     {renderSuggestionDropdown('city')}
                   </div>
                   
-                  {/* State */}
+              
                   <div ref={wrapperRefs.state} className="relative">
                     <input
                       type="text"
@@ -649,7 +687,7 @@ useEffect(() => {
                 </div>
                 
                 <div className="grid grid-cols-2 gap-3">
-                  {/* Zip Code */}
+             
                   <input
                     type="text"
                     placeholder="Zip Code"
@@ -659,7 +697,7 @@ useEffect(() => {
                     required
                   />
                   
-                  {/* Country */}
+                 
                   <div ref={wrapperRefs.country} className="relative">
                     <input
                       type="text"
@@ -678,19 +716,24 @@ useEffect(() => {
             </div>
           )}
 
-          {/* Estimated Payment */}
-          <div className="mb-8 pb-8 text-center border-b border-gray-200">
-            <p className="text-lg text-gray-900">
-              Estimated monthly payment: <span className="font-bold">${selectedComboAppliance?.pricing?.rentPrice} + fees</span>
-            </p>
-            {selectedComboAppliance?.powerType == "Warranty" && (
-      <p className="text-lg font-semibold text-green-600">
-        + ${FIXED_WARRANTY_FEE}/mo Warranty Protection
-      </p>
-    )}
-          </div>
-
-          {/* Installation Options */}
+       
+<div className="mb-8 pb-8 text-center border-b border-gray-200">
+  <p className="text-lg text-gray-900">
+    Estimated monthly payment: 
+    <span className="font-bold">
+      ${selectedComboAppliance?.warranty && selectedComboAppliance?.warrantyPrice
+        ? (parseFloat(selectedComboAppliance.pricing.rentPrice) + parseFloat(selectedComboAppliance.warrantyPrice)).toFixed(2)
+        : selectedComboAppliance?.pricing?.rentPrice
+      } + fees
+    </span>
+  </p>
+  {selectedComboAppliance?.warranty && selectedComboAppliance?.warrantyPrice && (
+    <p className="text-sm text-gray-600 mt-2">
+      (Includes ${selectedComboAppliance.warrantyPrice}/mo Warranty Protection)
+    </p>
+  )}
+</div>
+        
           <div className="grid grid-cols-2 gap-4 mb-8">
             <button
              onClick={() => setShowNoInstallPopup(true)}
@@ -715,7 +758,7 @@ useEffect(() => {
 
           </div>
 
-          {/* Connect to Vendor Button */}
+         
           <button
   onClick={handleFinalSubmit}
   disabled={
@@ -744,7 +787,7 @@ useEffect(() => {
   )}
 </button>
 
-          {/* Terms */}
+        
           <p className="text-center text-sm text-gray-600 mt-4">
             By continuing, you agree to rental terms and <a href="#" className="underline">privacy</a>.
           </p>
@@ -755,7 +798,7 @@ useEffect(() => {
     {showNoInstallPopup && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-2xl max-w-md w-full p-6 relative shadow-2xl">
-          {/* Close button */}
+        
           <button
             onClick={() => setShowNoInstallPopup(false)}
             className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
@@ -765,7 +808,7 @@ useEffect(() => {
             </svg>
           </button>
 
-          {/* Content */}
+       
           <div className="mt-2">
             <h3 className="text-xl font-bold text-gray-900 mb-4">Self-Install Acknowledgment</h3>
             <p className="text-gray-700 text-sm leading-relaxed mb-6">
