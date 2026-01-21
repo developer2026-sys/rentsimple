@@ -1,9 +1,9 @@
 export const LISTING_CATEGORIES = [
   { id: 'appliances', label: 'Appliances', hidden: false, showPowerType: true, showWarranty: true },
   { id: 'furniture', label: 'Furniture', hidden: false, showPowerType: false, showWarranty: true },
-  { id: 'electronics', label: 'Electronics', hidden: false, showPowerType: false, showWarranty: true },
+  { id: 'electronics', label: 'Electronics', hidden: false, showPowerType: true, showWarranty: true },
   //vehicle
-  { id: 'vehicles', label: 'Vehicles', hidden: false, showPowerType: false, showWarranty: false },
+  { id: 'vehicles', label: 'Vehicles', hidden: false, showPowerType: true, showWarranty: false },
 ];
 export const LISTING_SUBCATEGORIES = [
   { id: 'dryer', label: 'Dryer', category: 'appliances' },
@@ -21,9 +21,11 @@ export const LISTING_SUBCATEGORIES = [
 ];
 
 export const POWER_TYPE_OPTIONS = [
-  { value: 'electric', label: 'Electric' },
-  { value: 'gas', label: 'Gas' },
-  { value: 'other', label: 'Other' },
+  { value: 'electric', label: 'Electric', allowed: ['appliances', 'vehicles', 'electronics'] },
+  { value: 'gas', label: 'Gas', allowed: ['appliances', 'vehicles'] },
+  { value: 'battery', label: 'Battery', allowed: ['electronics'] },
+  { value: 'hybrid', label: 'Hybrid', allowed: ['vehicles'] },
+  { value: 'other', label: 'Other', allowed: ['all'] },
 ];
 
 export const CONDITION_OPTIONS = [

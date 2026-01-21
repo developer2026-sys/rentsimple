@@ -7,7 +7,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { BASE_URL } from "../baseUrl";
 
-import { LISTING_CATEGORIES, LISTING_SUBCATEGORIES, CONDITION_OPTIONS } from '../constants/listings'
+import { LISTING_CATEGORIES, LISTING_SUBCATEGORIES, CONDITION_OPTIONS, POWER_TYPE_OPTIONS } from '../constants/listings'
 
 const StripeOnboardingPopup = ({ isOpen, onClose, onboardingUrl, accountId }) => {
   if (!isOpen) return null;
@@ -111,6 +111,7 @@ function ListingCreationFlow() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
   const [subcategoryList, setSubcategoryList] = useState([...LISTING_SUBCATEGORIES]);
+  const [showFormSections, setShowFormSections] = useState({});
   const pickupAddressRef = useRef(null);
   const [loadingCurrentLocation, setLoadingCurrentLocation] = useState(false);
 
@@ -252,9 +253,12 @@ function ListingCreationFlow() {
 
   useEffect(() => {
     // Filter subcategories based on selected category
-    console.log(selectedCategory);
     const filteredSubcategories = LISTING_SUBCATEGORIES.filter(subcat => subcat.category === selectedCategory || subcat.category === 'none');
     setSubcategoryList(filteredSubcategories);
+    const category = LISTING_CATEGORIES.find(cat => cat.id === selectedCategory);
+    const showSections = { ...showFormSections, showPower: category?.showPowerType, showWarranty: category?.showWarranty };
+    console.log('showSections', showSections);
+    setShowFormSections(showSections);
   }, [selectedCategory]);
 
   // Handle image file selection
@@ -649,6 +653,68 @@ function ListingCreationFlow() {
     }
   };
 
+  const renderPowerType = () => (
+    <div>
+      <label className="block text-sm font-semibold text-gray-700 mb-2">
+        Power Type *
+      </label>
+      <div className="grid grid-cols-2 gap-3">
+        {/* {POWER_TYPE_OPTIONS.map((type) => (
+          <button
+            key={type}
+            type="button"
+            onClick={() =>
+              setFormData({ ...formData, powerType: type })
+            }
+            className={`py-3 rounded-lg font-semibold transition-all cursor-pointer ${formData.powerType === type
+              ? 'bg-[#024a47] text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+          >
+            {type}
+          </button>
+        ))} */}
+        <select
+          id="listing-power-type"
+          name="powerType"
+          value={formData.powerType}
+          onChange={handleInputChange}
+          className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+        >
+          <option value="">Select power type</option>
+          {POWER_TYPE_OPTIONS?.filter((type) => type.allowed.includes(selectedCategory) || type.allowed.includes('all'))?.map((type) => (
+            <option key={type.value} value={type.value}>
+              {type.label}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>);
+  const renderWarranty = () => (
+    <>
+      <div className="mb-3 grid grid-cols-2 gap-0 col-span-1">
+        <label htmlFor="listing-has-warranty" >Warranty</label>
+        <input
+          id="listing-has-warranty"
+          type="checkbox"
+          name="has-warranty"
+          checked={hasWarranty}
+          onChange={() => { setHasWarranty(!hasWarranty); }}
+        />
+      </div>
+      {/* <label htmlFor="listing-warranty-text" className="col-span-full mb-1">Warranty Text</label> */}
+      <textarea
+        id="listing-warranty"
+        name="warranty"
+        value={formData.warranty || ''}
+        disabled={!hasWarranty}
+        onChange={handleInputChange}
+        placeholder="Enter warranty text"
+        className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none disabled:cursor-not-allowed focus:ring-2 focus:ring-[#024a47]"
+      />
+    </>
+  );
+
   return (
     <>
       <ToastContainer containerId="listingPage" />
@@ -879,7 +945,9 @@ function ListingCreationFlow() {
                     />
                   </div>
                 </div>
-                <div>
+                {showFormSections.showPower ? (renderPowerType()) : null}
+                {showFormSections.showWarranty ? (renderWarranty()) : null}
+                {/* <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Power Type *
                   </label>
@@ -900,7 +968,7 @@ function ListingCreationFlow() {
                       </button>
                     ))}
                   </div>
-                </div>
+                </div> */}
                 <div ref={pickupAddressRef} className="relative">
                   <label htmlFor="listing-loc-address" className="block text-sm font-semibold text-gray-700 mb-2">
                     Pickup Address *
