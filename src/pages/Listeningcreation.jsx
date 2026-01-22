@@ -824,7 +824,7 @@ function ListingCreationFlow() {
                     </label>
                     <select
                       id="listing-category"
-                      name="category"
+                      name="categoryType"
                       value={selectedCategory}
                       onChange={handleCategoryChange}
                       className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
@@ -843,7 +843,7 @@ function ListingCreationFlow() {
                     </label>
                     <select
                       id="listing-subcategory"
-                      name="subcategory"
+                      name="category"
                       value={selectedSubcategory}
                       disabled={!selectedCategory}
                       onChange={handleSubcategoryChange}
