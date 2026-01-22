@@ -70,6 +70,8 @@ import VendorProtectedRoute from './components/vendorMiddleware.jsx'
 import VendorProfile from './vendor/vendorprofile.jsx'
 import UserProfile from './pages/userprofile.jsx'
 import ActiveRentals from './vendor/activeRentals.jsx'
+import ActiveRenterRentals from './pages/ActiveRenterRental.jsx'
+import CompletedRenterRentals from './pages/CompletedRenterRent.jsx'
 
 const stripePromise = loadStripe("pk_test_51OwuO4LcfLzcwwOYdssgGfUSfOgWT1LwO6ewi3CEPewY7WEL9ATqH6WJm3oAcLDA3IgUvVYLVEBMIEu0d8fUwhlw009JwzEYmV");
 
@@ -82,10 +84,12 @@ createRoot(document.getElementById('root')).render(
           <Route path="/" element={<App />} />
         <Route element={<ProtectedRoute/>}>
         <Route path='/renterDashboard' element={<RenterDashboard/>}/>
+        <Route path='/activeRenterRentals' element={<ActiveRenterRentals/>}/>
         <Route path='/profile' element={<UserProfile/>}/>
         <Route path="/appliance" element={<ApplianceRentalPage />} />
         <Route path='/userchat' element={<UserChatPage/>}/>
         <Route path='/renterconfirmation' element={<UnitPurchasePage/>}/>
+        <Route path='/completedRenterRentals' element={<CompletedRenterRentals/>}/>
         </Route>
         <Route element={<VendorProtectedRoute/>}>
         <Route path='/activerentals' element={<ActiveRentals/>}/>

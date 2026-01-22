@@ -18,13 +18,14 @@ const [newPickupAddress, setNewPickupAddress] = useState({
   state: '',
   zipCode: ''
 });
-  const [deliveryAddress, setDeliveryAddress] = useState({
-    street: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    country: ''
-  });
+const [deliveryAddress, setDeliveryAddress] = useState({
+  street: '',
+  city: '',
+  state: '',
+  zipCode: '',
+  country: 'United States'
+});
+
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showNoInstallPopup, setShowNoInstallPopup] = useState(false);
@@ -68,10 +69,9 @@ FIXED_WARRANTY_FEE=selectedComboAppliance.warrantyPrice
 
   useEffect(() => {
     if (user?.deliveryAddress) {
-      // Parse the delivery address string into components
+    
       const parseAddress = (addressString) => {
-        // Assuming format: "street, city, state zipCode, country"
-        // or similar variations
+      
         const parts = addressString.split(',').map(p => p.trim());
         
         let parsed = {
@@ -79,13 +79,13 @@ FIXED_WARRANTY_FEE=selectedComboAppliance.warrantyPrice
           city: '',
           state: '',
           zipCode: '',
-          country: ''
+          country: 'United States'
         };
         
         if (parts.length >= 1) parsed.street = parts[0];
         if (parts.length >= 2) parsed.city = parts[1];
         if (parts.length >= 3) {
-          // Split state and zipCode (assuming format like "State 12345")
+     
           const stateZip = parts[2].split(' ');
           parsed.state = stateZip[0];
           parsed.zipCode = stateZip.slice(1).join(' ');
@@ -100,7 +100,7 @@ FIXED_WARRANTY_FEE=selectedComboAppliance.warrantyPrice
     }
   }, [user]);
   
-  // Handle click outside to close suggestions
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       Object.keys(wrapperRefs).forEach(field => {
@@ -115,28 +115,27 @@ FIXED_WARRANTY_FEE=selectedComboAppliance.warrantyPrice
   }, []);
   
 
-  // Fetch location suggestions from OpenStreetMap
+  
   const fetchSuggestions = async (value, field) => {
     if (!value || value.length < 2) {
       setSuggestions(prev => ({ ...prev, [field]: [] }));
       return;
     }
-
+  
     setLoading(prev => ({ ...prev, [field]: true }));
     try {
       let searchQuery = value;
       
-      // Build search query based on field and existing data
-      if (field === 'city' && deliveryAddress.country) {
-        searchQuery = `${value}, ${deliveryAddress.country}`;
-      } else if (field === 'state' && deliveryAddress.country) {
-        searchQuery = `${value}, ${deliveryAddress.country}`;
-      } else if (field === 'street' && deliveryAddress.city && deliveryAddress.country) {
-        searchQuery = `${value}, ${deliveryAddress.city}, ${deliveryAddress.country}`;
+      if (field === 'city') {
+        searchQuery = `${value}, United States`;
+      } else if (field === 'state') {
+        searchQuery = `${value}, United States`;
+      } else if (field === 'street' && deliveryAddress.city) {
+        searchQuery = `${value}, ${deliveryAddress.city}, United States`;
       }
       
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=5&addressdetails=1`,
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&countrycodes=us&limit=5&addressdetails=1`,
         {
           headers: {
             'User-Agent': 'RentalApp/1.0'
@@ -165,7 +164,7 @@ FIXED_WARRANTY_FEE=selectedComboAppliance.warrantyPrice
             displayName: item.address?.city || item.address?.town || item.address?.village || '',
             city: item.address?.city || item.address?.town || item.address?.village || '',
             state: item.address?.state || '',
-            country: item.address?.country || ''
+            country: 'United States'
           }));
       } else if (field === 'state') {
         formattedSuggestions = data
@@ -173,7 +172,7 @@ FIXED_WARRANTY_FEE=selectedComboAppliance.warrantyPrice
           .map(item => ({
             displayName: item.address?.state || '',
             state: item.address?.state || '',
-            country: item.address?.country || ''
+            country: 'United States'
           }));
       } else if (field === 'country') {
         formattedSuggestions = data
@@ -288,25 +287,25 @@ useEffect(() => {
   
       setDeliveryAddress({
         street: fullStreet,
-        city: suggestion.city || '',  // Changed from deliveryAddress.city
-        state: suggestion.state || '',  // Changed from deliveryAddress.state
-        zipCode: suggestion.zipCode || '',  // Changed from deliveryAddress.zipCode
-        country: suggestion.country || ''  // Changed from deliveryAddress.country
+        city: suggestion.city || '', 
+        state: suggestion.state || '',  
+        zipCode: suggestion.zipCode || '',  
+        country: suggestion.country || ''  
       });
     } else if (field === 'city') {
       setDeliveryAddress(prev => ({
         ...prev,
         city: suggestion.city,
         state: suggestion.state || prev.state,
-        country: suggestion.country || prev.country
+        country: 'United States'
       }));
     } else if (field === 'state') {
       setDeliveryAddress(prev => ({
         ...prev,
         state: suggestion.state,
-        country: suggestion.country || prev.country
+        country: 'United States'
       }));
-    } else if (field === 'country') {
+    }else if (field === 'country') {
       setDeliveryAddress(prev => ({
         ...prev,
         country: suggestion.country
@@ -368,6 +367,20 @@ useEffect(() => {
   };
 
 
+  useEffect(() => {
+    if (selectedComboAppliance) {
+      setSelectedInstallOption(
+        selectedComboAppliance.installation ? 'installation' : 'no-install'
+      );
+    }
+  }, [selectedComboAppliance]);
+
+
+// useEffect(() => {
+//   if (selectedComboAppliance && !selectedComboAppliance.installation) {
+//     setSelectedInstallOption('no-install');
+//   }
+// }, [selectedComboAppliance]);
 
   const renderSuggestionDropdown = (field) => {
     return (
@@ -698,19 +711,12 @@ useEffect(() => {
                   />
                   
                  
-                  <div ref={wrapperRefs.country} className="relative">
-                    <input
-                      type="text"
-                      placeholder="Country"
-                      value={deliveryAddress.country}
-                      onChange={(e) => handleInputChange('country', e.target.value)}
-                      onFocus={() => suggestions.country.length > 0 && setShowSuggestions(prev => ({ ...prev, country: true }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
-                      autoComplete="off"
-                      required
-                    />
-                    {renderSuggestionDropdown('country')}
-                  </div>
+                  <input
+  type="text"
+  value="United States"
+  disabled
+  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
+/>
                 </div>
               </div>
             </div>
@@ -721,42 +727,79 @@ useEffect(() => {
   <p className="text-lg text-gray-900">
     Estimated monthly payment: 
     <span className="font-bold">
-      ${selectedComboAppliance?.warranty && selectedComboAppliance?.warrantyPrice
-        ? (parseFloat(selectedComboAppliance.pricing.rentPrice) + parseFloat(selectedComboAppliance.warrantyPrice)).toFixed(2)
-        : selectedComboAppliance?.pricing?.rentPrice
-      } + fees
+      ${(() => {
+        let total = parseFloat(selectedComboAppliance?.pricing?.rentPrice || 0);
+        
+        if (selectedComboAppliance?.warranty && selectedComboAppliance?.warrantyPrice) {
+          total += parseFloat(selectedComboAppliance.warrantyPrice);
+        }
+        
+        if (selectedInstallOption === 'installation' && selectedComboAppliance?.installationPrice) {
+          total += parseFloat(selectedComboAppliance.installationPrice);
+        }
+        
+        return total.toFixed(2);
+      })()} + fees
     </span>
   </p>
-  {selectedComboAppliance?.warranty && selectedComboAppliance?.warrantyPrice && (
-    <p className="text-sm text-gray-600 mt-2">
-      (Includes ${selectedComboAppliance.warrantyPrice}/mo Warranty Protection)
-    </p>
-  )}
+  <div className="text-sm text-gray-600 mt-2 space-y-1">
+    {selectedComboAppliance?.warranty && selectedComboAppliance?.warrantyPrice && (
+      <p>(Includes ${selectedComboAppliance.warrantyPrice}/mo Warranty Protection)</p>
+    )}
+    {selectedInstallOption === 'installation' && selectedComboAppliance?.installationPrice && (
+      <p>(Includes ${selectedComboAppliance.installationPrice}/mo Installation)</p>
+    )}
+  </div>
 </div>
         
-          <div className="grid grid-cols-2 gap-4 mb-8">
-            <button
-             onClick={() => setShowNoInstallPopup(true)}
-              className={`py-4 px-6 rounded-lg font-semibold text-lg transition-colors border-2 ${
-                selectedInstallOption === 'no-install'
-                  ? 'bg-[#024a47] text-white border-[#024a47]'
-                  : 'bg-white border-[#024a47] text-[#024a47] hover:bg-gray-50'
-              }`}
-            >
-              NO INSTALL
-            </button>
-            <button
-  onClick={() => setSelectedInstallOption('installation')}
-  className={`min-w-[180px] sm:min-w-[220px] py-4 px-6 rounded-lg font-semibold text-lg transition-colors border-2 ${
-    selectedInstallOption === 'installation'
-      ? 'bg-[#024a47] text-white border-[#024a47]'
-      : 'bg-white border-[#024a47] text-[#024a47] hover:bg-gray-50'
-  }`}
->
-  INSTALLATION
-</button>
 
-          </div>
+<div className="mb-8 text-center p-4 bg-gray-50 rounded-lg">
+  <h3 className="text-lg font-bold text-gray-900 mb-2">INSTALLATION</h3>
+  <p className="text-gray-700">
+    {selectedComboAppliance?.installation ? (
+      <>
+        Installation is included with this listing
+        <span className="block text-sm mt-1">
+          (+${selectedComboAppliance?.installationPrice || 0}/mo)
+        </span>
+      </>
+    ) : (
+      'Self-installation required for this listing'
+    )}
+  </p>
+</div>
+
+
+{/* {selectedComboAppliance?.installation && (
+  <div className="mb-8 text-center">
+    <h3 className="text-lg font-bold text-gray-900 mb-4">INSTALLATION OPTIONS</h3>
+    <div className="grid grid-cols-2 gap-4">
+      <button
+        onClick={() => setShowNoInstallPopup(true)}
+        className={`py-4 px-6 rounded-lg font-semibold text-lg transition-colors border-2 ${
+          selectedInstallOption === 'no-install'
+            ? 'bg-[#024a47] text-white border-[#024a47]'
+            : 'bg-white border-[#024a47] text-[#024a47] hover:bg-gray-50'
+        }`}
+      >
+        NO INSTALL
+      </button>
+      <button
+        onClick={() => setSelectedInstallOption('installation')}
+        className={`py-4 px-6 rounded-lg font-semibold text-lg transition-colors border-2 ${
+          selectedInstallOption === 'installation'
+            ? 'bg-[#024a47] text-white border-[#024a47]'
+            : 'bg-white border-[#024a47] text-[#024a47] hover:bg-gray-50'
+        }`}
+      >
+        INSTALLATION
+        <div className="text-sm mt-1">
+          +${selectedComboAppliance?.installationPrice || 0}/mo
+        </div>
+      </button>
+    </div>
+  </div>
+)} */}
 
          
           <button
@@ -764,9 +807,9 @@ useEffect(() => {
   disabled={
     isSubmitting ||
     !selectedDeliveryOption || 
-    !selectedInstallOption || 
     (selectedDeliveryOption === 'delivery' && (!deliveryAddress.street || !deliveryAddress.city || !deliveryAddress.state || !deliveryAddress.zipCode || !deliveryAddress.country))
   }
+
   className={`w-full py-4 px-6 rounded-lg font-semibold text-lg transition-colors relative ${
     !isSubmitting && selectedDeliveryOption && selectedInstallOption && 
     (selectedDeliveryOption === 'pickup' || (selectedDeliveryOption === 'delivery' && deliveryAddress.street && deliveryAddress.city && deliveryAddress.state && deliveryAddress.zipCode && deliveryAddress.country))

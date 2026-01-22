@@ -795,7 +795,29 @@ const getRejectionReasons = (listingId) => {
                         : 'border-gray-200'
                     }`}
                   >
-                  
+                    <div className="absolute top-3 right-3 z-10">
+                      <div className="relative group">
+                        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-lg bg-gray-200">
+                          {appliance?.vendor?.image ? (
+                            <img 
+                              src={appliance.vendor.image} 
+                              alt={appliance.vendor.name || 'Vendor'} 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-[#024a47] text-white font-bold text-lg">
+                              {appliance?.vendor?.name?.charAt(0)?.toUpperCase() || 'V'}
+                            </div>
+                          )}
+                        </div>
+                     
+                      
+                        <div className="absolute right-0 top-14 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap pointer-events-none">
+                          {appliance?.vendor?.name || 'Vendor'}
+                        </div>
+                      </div>
+                    </div>
+
                     {isBoostActive(appliance) && (
                       <div className="absolute -top-3 -right-3 z-10">
                         <div className={`${getBoostBadgeColor(appliance.visibility.boostAmount)} text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1`}>

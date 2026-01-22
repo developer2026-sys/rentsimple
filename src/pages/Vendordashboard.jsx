@@ -302,8 +302,15 @@ setShowSuccessPopup(false)
               <div>
                 <h1 className="text-2xl font-bold text-[#024a47]">RentSimple</h1>
                 <p className="text-sm text-gray-600">
-                  {dashboardData?.vendor?.businessName || 'Vendor Dashboard'}
+                  {dashboardData?.vendor?.name || 'Vendor Dashboard'}
                 </p>
+
+
+ <p className="text-sm text-gray-600">
+                  {dashboardData?.vendor?.businessName || ''}
+                </p>
+
+
               </div>
             </div>
             <div className="flex items-center space-x-4">

@@ -648,7 +648,9 @@ const stats = [
           ) : (
             <div className="space-y-4">
               {activeRentals.map((rental) => (
-                <div key={rental.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div onClick={()=>{
+                  navigate('/activeRenterRentals')
+                }} key={rental.id} className="flex cursor-pointer items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
                       {rental.image ? (
@@ -721,7 +723,9 @@ const stats = [
   ) : (
     <div className="space-y-4">
       {completedOrders.map((order) => (
-        <div key={order.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors gap-4">
+        <div onClick={()=>{
+          navigate('/completedRenterRentals')
+        }} key={order.id} className="flex cursor-pointer flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors gap-4">
           <div className="flex items-center space-x-4 flex-1">
             <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
               {order.image ? (

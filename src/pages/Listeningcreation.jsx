@@ -130,6 +130,7 @@ const [loadingCurrentLocation, setLoadingCurrentLocation] = useState(false);
     warrantyPrice: '',
     installationPrice: '',
     warranty: false,
+    installation: false,
     location: {
       city: '',
       state: '',
@@ -141,6 +142,7 @@ const [loadingCurrentLocation, setLoadingCurrentLocation] = useState(false);
       height: ''
     }
   });
+
 
 
   const handleInputChange = (e) => {
@@ -484,24 +486,10 @@ const handleSelectPickupSuggestion = (suggestion) => {
         toast.error('Please enter a valid delivery price', { containerId: 'listingPage' });
         return false;
       }
-      if (!formData.installationPrice || formData.installationPrice < 0) {
+      if (formData.installation && (!formData.installationPrice || formData.installationPrice <= 0)) {
         toast.error('Please enter a valid installation price', { containerId: 'listingPage' });
         return false;
       }
-      if (imageFiles.length === 0) {
-        toast.error('Please upload an image', { containerId: 'listingPage' });
-        return false;
-      }
-
-      if (imageFiles.length === 0) {
-        toast.error('Please upload at least 1 image', { containerId: 'listingPage' });
-        return false;
-      }
-      if (imageFiles.length > 3) {
-        toast.error('Maximum 3 images allowed', { containerId: 'listingPage' });
-        return false;
-      }
-
     }
   
     if (step === 3) {
@@ -559,6 +547,7 @@ const handleSelectPickupSuggestion = (suggestion) => {
         buyPrice: parseFloat(formData.buyPrice),
         deliveryPrice: parseFloat(formData.deliveryPrice), 
         installationPrice: parseFloat(formData.installationPrice),
+        installation:formData.installation,
         warranty: formData.warranty,
         ...(formData.warranty && { warrantyPrice: parseFloat(formData.warrantyPrice) }),
         description: formData.description,
@@ -567,7 +556,9 @@ const handleSelectPickupSuggestion = (suggestion) => {
         publishToFeed: formData.publishToFeed,
         pickUpAddress: formData.pickUpAddress,
         location: formData.location,
-        dimensions: formData.dimensions
+        dimensions: formData.dimensions,
+        installation: formData.installation,
+        ...(formData.installation && { installationPrice: parseFloat(formData.installationPrice) }),
       };
       
       const response = await axios.post(
@@ -1011,45 +1002,75 @@ const handleSelectPickupSuggestion = (suggestion) => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-  <div>
-    <label className="block text-sm font-semibold text-gray-700 mb-2">
-      Delivery Price *
-    </label>
-    <div className="relative">
-      <span className="absolute left-4 top-3 text-gray-600">$</span>
-      <input
-        type="number"
-        name="deliveryPrice"
-        value={formData.deliveryPrice}
-        onChange={handleInputChange}
-        placeholder="30.00"
-        step="0.01"
-        min="0"
-        className="w-full pl-8 pr-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
-      />
-    </div>
-  </div>
+                  <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Delivery Price *
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-3 text-gray-600">$</span>
+                    <input
+                      type="number"
+                      name="deliveryPrice"
+                      value={formData.deliveryPrice}
+                      onChange={handleInputChange}
+                      placeholder="30.00"
+                      step="0.01"
+                      min="0"
+                      className="w-full pl-8 pr-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+                    />
+                  </div>
+                </div>
 
-  <div>
-    <label className="block text-sm font-semibold text-gray-700 mb-2">
-      Installation Price *
-    </label>
-    <div className="relative">
-      <span className="absolute left-4 top-3 text-gray-600">$</span>
-      <input
-        type="number"
-        name="installationPrice"
-        value={formData.installationPrice}
-        onChange={handleInputChange}
-        placeholder="30.00"
-        step="0.01"
-        min="0"
-        className="w-full pl-8 pr-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
-      />
-    </div>
-  </div>
-</div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Installation Service
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, installation: true })}
+                      className={`py-3 rounded-lg font-semibold transition-all ${
+                        formData.installation
+                          ? 'bg-[#024a47] text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      Installation Available
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, installation: false, installationPrice: '' })}
+                      className={`py-3 rounded-lg font-semibold transition-all ${
+                        !formData.installation
+                          ? 'bg-[#024a47] text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      No Installation
+                    </button>
+                  </div>
+                </div>
+
+                {formData.installation && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Installation Price *
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-3 text-gray-600">$</span>
+                      <input
+                        type="number"
+                        name="installationPrice"
+                        value={formData.installationPrice}
+                        onChange={handleInputChange}
+                        placeholder="30.00"
+                        step="0.01"
+                        min="0"
+                        className="w-full pl-8 pr-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+                      />
+                    </div>
+                  </div>
+                )}
                 </div>
 
                 <div>
@@ -1182,6 +1203,13 @@ const handleSelectPickupSuggestion = (suggestion) => {
     ${formData.deliveryPrice}
   </span>
 </div>
+<div className="flex justify-between">
+  <span className="text-gray-600">Installation:</span>
+  <span className="font-semibold">
+    {formData.installation ? 'Available' : 'Not Available'}
+  </span>
+</div>
+
 <div className="flex justify-between">
   <span className="text-gray-600">Installation Price:</span>
   <span className="font-semibold">

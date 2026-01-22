@@ -18,6 +18,7 @@ function VendorSignup() {
     password: '',
     confirmPassword: '',
     businessName: '',
+    image: null,
     agreeToTerms: false
   });
 
@@ -28,6 +29,17 @@ function VendorSignup() {
       [name]: type === 'checkbox' ? checked : value
     });
   };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({
+        ...formData,
+        image: file
+      });
+    }
+  };
+
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -54,13 +66,22 @@ function VendorSignup() {
 
     setLoading(true);
     try {
-      const response = await axios.post(`${BASE_URL}/vendor/signup`, {
-        name: formData.name,
-        email: formData.email,
-        mobile: formData.mobile,
-        password: formData.password,
-        businessName: formData.businessName
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('email', formData.email);
+      formDataToSend.append('mobile', formData.mobile);
+      formDataToSend.append('password', formData.password);
+      formDataToSend.append('businessName', formData.businessName);
+      if (formData.image) {
+        formDataToSend.append('image', formData.image);
+      }
+
+      const response = await axios.post(`${BASE_URL}/vendor/signup`, formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
+
 
       toast.success('Account created successfully! Redirecting to login...', { 
         containerId: 'signupPage' 
@@ -128,6 +149,27 @@ function VendorSignup() {
                     placeholder="vendor@example.com"
                     className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
                   />
+                </div>
+              </div>
+
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Vendor Image *
+                </label>
+                <div className="relative">
+                  <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#024a47] file:text-white hover:file:bg-[#035d59] file:cursor-pointer"
+                  />
+                  {formData.image && (
+                    <p className="mt-2 text-sm text-gray-600">
+                      Selected: {formData.image.name}
+                    </p>
+                  )}
                 </div>
               </div>
 

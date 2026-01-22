@@ -429,7 +429,7 @@ export default function VendorRequestsListPage() {
     const handlePhotoUpload = async (type, event) => {
       const file = event.target.files[0];
       if (file) {
-        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        if (file.size > 5 * 1024 * 1024) { 
           toast.info('File size should be less than 5MB',{containerId:"vendorRequestList"});
           return;
         }
@@ -472,7 +472,7 @@ if (missingChecks.length > 0) {
   return;
 }
 
-      onSubmit(photos); // Pass photos to parent if needed
+      onSubmit(photos); 
     };
 
     return (
@@ -525,10 +525,11 @@ if (missingChecks.length > 0) {
 
   <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
     {[
-      { key: 'front', label: 'Front' },
-      { key: 'side', label: 'Side' },
-      { key: 'serialTag', label: 'Serial tag' },
-      { key: 'condition', label: 'Condition' }
+      { key: 'front', label: 'image one' },
+      { key: 'side', label: 'image two' },
+      { key: 'serialTag', label: 'image three' },
+      { key: 'condition', label: 'image four' },
+      { key: 'pic', label: 'image five' }
     ].map((item) => (
       <div key={item.key} className="relative">
         <input
@@ -606,114 +607,90 @@ if (missingChecks.length > 0) {
     <h3 className="text-2xl font-bold">Pre-Delivery Inspection Checklist</h3>
   </div>
 
-  <div className="ml-12 space-y-6">
-    {/* 1. Power & Primary Function Test */}
-    <div>
-      <div 
-        onClick={() => !loading && setOperationalChecks({...operationalChecks, powerTest: !operationalChecks.powerTest})}
-        className={`flex items-start gap-3 p-3 rounded-lg transition-colors border-2 ${
-          operationalChecks.powerTest ? 'border-green-900 bg-green-50' : 'border-gray-200'
-        } ${loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-gray-50'}`}
-      >
-        <div className={`w-6 h-6 mt-0.5 ${operationalChecks.powerTest ? 'bg-green-900' : 'bg-gray-200'} rounded-full flex items-center justify-center flex-shrink-0 transition-colors`}>
-          {operationalChecks.powerTest && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
-        </div>
-        <div className="flex-1">
-          <span className="text-lg font-semibold text-gray-900 block mb-1">1. Power & Primary Function Test</span>
-          <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
-            <li>No flickering, shutdowns, or electrical issues</li>
-            <li>All main features run through a full cycle</li>
-            <li>Controls and displays work correctly</li>
-          </ul>
-        </div>
-      </div>
+ {/* 1. Item is clean */}
+<div>
+  <div 
+    onClick={() => !loading && setOperationalChecks({...operationalChecks, powerTest: !operationalChecks.powerTest})}
+    className={`flex items-start gap-3 p-3 rounded-lg transition-colors border-2 ${
+      operationalChecks.powerTest ? 'border-green-900 bg-green-50' : 'border-gray-200'
+    } ${loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-gray-50'}`}
+  >
+    <div className={`w-6 h-6 mt-0.5 ${operationalChecks.powerTest ? 'bg-green-900' : 'bg-gray-200'} rounded-full flex items-center justify-center flex-shrink-0 transition-colors`}>
+      {operationalChecks.powerTest && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
     </div>
-
-    {/* 2. Safety & Structural Integrity Check */}
-    <div>
-      <div 
-        onClick={() => !loading && setOperationalChecks({...operationalChecks, safetyCheck: !operationalChecks.safetyCheck})}
-        className={`flex items-start gap-3 p-3 rounded-lg transition-colors border-2 ${
-          operationalChecks.safetyCheck ? 'border-green-900 bg-green-50' : 'border-gray-200'
-        } ${loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-gray-50'}`}
-      >
-        <div className={`w-6 h-6 mt-0.5 ${operationalChecks.safetyCheck ? 'bg-green-900' : 'bg-gray-200'} rounded-full flex items-center justify-center flex-shrink-0 transition-colors`}>
-          {operationalChecks.safetyCheck && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
-        </div>
-        <div className="flex-1">
-          <span className="text-lg font-semibold text-gray-900 block mb-1">2. Safety & Structural Integrity Check</span>
-          <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
-            <li>No exposed wires, loose parts, or sparks</li>
-            <li>Unit stands level without wobbling</li>
-            <li>Panels, hinges, and housing are secure</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    {/* 3. Mechanical, Water, & Internal Performance */}
-    <div>
-      <div 
-        onClick={() => !loading && setOperationalChecks({...operationalChecks, mechanicalTest: !operationalChecks.mechanicalTest})}
-        className={`flex items-start gap-3 p-3 rounded-lg transition-colors border-2 ${
-          operationalChecks.mechanicalTest ? 'border-green-900 bg-green-50' : 'border-gray-200'
-        } ${loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-gray-50'}`}
-      >
-        <div className={`w-6 h-6 mt-0.5 ${operationalChecks.mechanicalTest ? 'bg-green-900' : 'bg-gray-200'} rounded-full flex items-center justify-center flex-shrink-0 transition-colors`}>
-          {operationalChecks.mechanicalTest && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
-        </div>
-        <div className="flex-1">
-          <span className="text-lg font-semibold text-gray-900 block mb-1">3. Mechanical, Water, & Internal Performance</span>
-          <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
-            <li>Fans, motors, drums, or blades run smoothly</li>
-            <li>No leaks from hoses, seals, or gaskets</li>
-            <li>Proper drainage with no odors or standing water</li>
-            <li>Filters and interior areas clean and residue-free</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    {/* 4. Exterior Condition & Accessory Review */}
-    <div>
-      <div 
-        onClick={() => !loading && setOperationalChecks({...operationalChecks, exteriorCondition: !operationalChecks.exteriorCondition})}
-        className={`flex items-start gap-3 p-3 rounded-lg transition-colors border-2 ${
-          operationalChecks.exteriorCondition ? 'border-green-900 bg-green-50' : 'border-gray-200'
-        } ${loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-gray-50'}`}
-      >
-        <div className={`w-6 h-6 mt-0.5 ${operationalChecks.exteriorCondition ? 'bg-green-900' : 'bg-gray-200'} rounded-full flex items-center justify-center flex-shrink-0 transition-colors`}>
-          {operationalChecks.exteriorCondition && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
-        </div>
-        <div className="flex-1">
-          <span className="text-lg font-semibold text-gray-900 block mb-1">4. Exterior Condition & Accessory Review</span>
-          <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
-            <li>No major dents, cracks, rust, or mold</li>
-            <li>Exterior fully cleaned and sanitized</li>
-            <li>All required accessories included</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    {/* 5. Desired Location Confirmed */}
-    <div>
-      <div 
-        onClick={() => !loading && setOperationalChecks({...operationalChecks, locationConfirmed: !operationalChecks.locationConfirmed})}
-        className={`flex items-start gap-3 p-3 rounded-lg transition-colors border-2 ${
-          operationalChecks.locationConfirmed ? 'border-green-900 bg-green-50' : 'border-gray-200'
-        } ${loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-gray-50'}`}
-      >
-        <div className={`w-6 h-6 mt-0.5 ${operationalChecks.locationConfirmed ? 'bg-green-900' : 'bg-gray-200'} rounded-full flex items-center justify-center flex-shrink-0 transition-colors`}>
-          {operationalChecks.locationConfirmed && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
-        </div>
-        <div className="flex-1">
-          <span className="text-lg font-semibold text-gray-900 block mb-1">5. I confirm the unit is fully prepared and ready for delivery to the renter.</span>
-          <p className="text-sm text-gray-600">Installation Installation location verified and accessible</p>
-        </div>
-      </div>
+    <div className="flex-1">
+      <span className="text-lg font-semibold text-gray-900">Item is clean and free of excessive dirt or residue</span>
     </div>
   </div>
+</div>
+
+{/* 2. No visible damage */}
+<div>
+  <div 
+    onClick={() => !loading && setOperationalChecks({...operationalChecks, safetyCheck: !operationalChecks.safetyCheck})}
+    className={`flex items-start gap-3 p-3 rounded-lg transition-colors border-2 ${
+      operationalChecks.safetyCheck ? 'border-green-900 bg-green-50' : 'border-gray-200'
+    } ${loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-gray-50'}`}
+  >
+    <div className={`w-6 h-6 mt-0.5 ${operationalChecks.safetyCheck ? 'bg-green-900' : 'bg-gray-200'} rounded-full flex items-center justify-center flex-shrink-0 transition-colors`}>
+      {operationalChecks.safetyCheck && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
+    </div>
+    <div className="flex-1">
+      <span className="text-lg font-semibold text-gray-900">No visible cracks, dents, or structural damage</span>
+    </div>
+  </div>
+</div>
+
+{/* 3. No loose parts */}
+<div>
+  <div 
+    onClick={() => !loading && setOperationalChecks({...operationalChecks, mechanicalTest: !operationalChecks.mechanicalTest})}
+    className={`flex items-start gap-3 p-3 rounded-lg transition-colors border-2 ${
+      operationalChecks.mechanicalTest ? 'border-green-900 bg-green-50' : 'border-gray-200'
+    } ${loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-gray-50'}`}
+  >
+    <div className={`w-6 h-6 mt-0.5 ${operationalChecks.mechanicalTest ? 'bg-green-900' : 'bg-gray-200'} rounded-full flex items-center justify-center flex-shrink-0 transition-colors`}>
+      {operationalChecks.mechanicalTest && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
+    </div>
+    <div className="flex-1">
+      <span className="text-lg font-semibold text-gray-900">No loose parts or missing components</span>
+    </div>
+  </div>
+</div>
+
+{/* 4. Labels intact */}
+<div>
+  <div 
+    onClick={() => !loading && setOperationalChecks({...operationalChecks, exteriorCondition: !operationalChecks.exteriorCondition})}
+    className={`flex items-start gap-3 p-3 rounded-lg transition-colors border-2 ${
+      operationalChecks.exteriorCondition ? 'border-green-900 bg-green-50' : 'border-gray-200'
+    } ${loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-gray-50'}`}
+  >
+    <div className={`w-6 h-6 mt-0.5 ${operationalChecks.exteriorCondition ? 'bg-green-900' : 'bg-gray-200'} rounded-full flex items-center justify-center flex-shrink-0 transition-colors`}>
+      {operationalChecks.exteriorCondition && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
+    </div>
+    <div className="flex-1">
+      <span className="text-lg font-semibold text-gray-900">Labels, warning stickers, and serial/VIN plates are intact</span>
+    </div>
+  </div>
+</div>
+
+{/* 5. Safe and stable */}
+<div>
+  <div 
+    onClick={() => !loading && setOperationalChecks({...operationalChecks, locationConfirmed: !operationalChecks.locationConfirmed})}
+    className={`flex items-start gap-3 p-3 rounded-lg transition-colors border-2 ${
+      operationalChecks.locationConfirmed ? 'border-green-900 bg-green-50' : 'border-gray-200'
+    } ${loading ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-gray-50'}`}
+  >
+    <div className={`w-6 h-6 mt-0.5 ${operationalChecks.locationConfirmed ? 'bg-green-900' : 'bg-gray-200'} rounded-full flex items-center justify-center flex-shrink-0 transition-colors`}>
+      {operationalChecks.locationConfirmed && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
+    </div>
+    <div className="flex-1">
+      <span className="text-lg font-semibold text-gray-900">Item appears safe and stable when stationary</span>
+    </div>
+  </div>
+</div>
 </div>
 
 {/* Add this before your submit button */}
