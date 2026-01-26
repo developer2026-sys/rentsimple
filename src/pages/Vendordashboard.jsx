@@ -228,8 +228,10 @@ setShowSuccessPopup(false)
       status: listing.status.charAt(0).toUpperCase() + listing.status.slice(1),
       boosted: listing.visibility?.isBoosted || false,
       image: listing.images?.[0]?.url,
-      deliveryType: listing.deliveryType, 
+      deliveryType: listing?.order?.deliveryType, 
       request: relatedRequest, 
+      orderStatus:listing?.order?.status,
+      transferStatus:listing?.order?.transferStatus,
       renterMobile: relatedRequest?.user?.mobile,
       renterId: relatedRequest?.user?._id
     };
@@ -487,7 +489,7 @@ setShowSuccessPopup(false)
         </div>
       </Link>
 
-      {listing.status.toLowerCase() === 'sold' && (
+      {listing?.orderStatus!="confirmed" && listing.status.toLowerCase() === 'sold' && (
   <div className="flex-1 mx-4 space-y-3">
     <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4">
       <div className="flex items-start space-x-3">
@@ -496,7 +498,7 @@ setShowSuccessPopup(false)
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        {listing.deliveryType && (
+        { listing.deliveryType && (
   <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
     {listing.deliveryType === 'pickup' ? <div className="flex-1">
           <h4 className="text-sm font-bold text-blue-900 mb-1">⏰ Delivery Required</h4>
@@ -563,7 +565,7 @@ setShowSuccessPopup(false)
 {
   listing?.status?.toLowerCase() === "active"
     ? "Active Listing"
-    : listing?.status?.toLowerCase() === "sold"
+    : listing?.status?.toLowerCase() === "sold" && listing?.orderStatus!="confirmed"
       ? "Order Pending Delivery"
       : listing?.status?.toLowerCase() === "draft"
         ? "Under Review"

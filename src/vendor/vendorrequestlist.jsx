@@ -6,6 +6,9 @@ import { Link } from 'react-router-dom';
 import VendorSupportChatWidget from './vendoradminchat';
 import { toast, ToastContainer } from 'react-toastify';
 
+
+
+
 export default function VendorRequestsListPage() {
   const [requests, setRequests] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState([]);
@@ -63,6 +66,34 @@ export default function VendorRequestsListPage() {
     city: useRef(null),
     state: useRef(null),
     country: useRef(null)
+  };
+
+  const handleApprovePayment = async (requestId) => {
+    try {
+      setProcessingId(requestId);
+      const token = localStorage.getItem('vendorToken');
+      const response = await fetch(`${BASE_URL}/approvePaymentVendor`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ requestId })
+      });
+  
+      if (response.ok) {
+        toast.success('Payment approved! Funds will be released to your account.', {containerId:"vendorRequestList"});
+        getVendorRequests();
+      } else {
+        const data = await response.json();
+        toast.error(data.error || 'Error approving payment', {containerId:"vendorRequestList"});
+      }
+    } catch (e) {
+      console.error('Error approving payment:', e);
+      toast.error('Error approving payment. Please try again.', {containerId:"vendorRequestList"});
+    } finally {
+      setProcessingId(null);
+    }
   };
   useEffect(() => {
     getVendorRequests();
@@ -450,31 +481,34 @@ export default function VendorRequestsListPage() {
     const removePhoto = (type) => {
       setPhotos(prev => ({ ...prev, [type]: null }));
     };
+
+
+
+  
   
     const handleSubmit = () => {
       const allPhotosComplete = Object.values(photos).every(photo => photo);
-  
-  if (!allPhotosComplete) {
-    toast.info('Please upload all required photos before submitting.',{containerId:"vendorRequestList"});
-    return;
-  }
-
-  const missingChecks = [];
-if (!operationalChecks.powerTest) missingChecks.push("Power & Primary Function Test");
-if (!operationalChecks.safetyCheck) missingChecks.push("Safety & Structural Integrity Check");
-if (!operationalChecks.mechanicalTest) missingChecks.push("Mechanical, Water, & Internal Performance Verification");
-if (!operationalChecks.exteriorCondition) missingChecks.push("Exterior Condition & Accessory Review");
-if (!operationalChecks.locationConfirmed) missingChecks.push("Desired Location Confirmed");
-if (!operationalChecks.unitReady) missingChecks.push("Unit Ready for Purchase & Delivery");
-
-if (missingChecks.length > 0) {
-  toast.info(`Please complete the following checks:\n\n${missingChecks.join('\n')}`,{containerId:"vendorRequestList"});
-  return;
-}
-
+    
+      if (!allPhotosComplete) {
+        toast.info('Please upload all required photos before submitting.', {containerId:"vendorRequestList"});
+        return;
+      }
+    
+      const missingChecks = [];
+      if (!operationalChecks.powerTest) missingChecks.push("Item is clean and free of excessive dirt or residue");
+      if (!operationalChecks.safetyCheck) missingChecks.push("No visible cracks, dents, or structural damage");
+      if (!operationalChecks.mechanicalTest) missingChecks.push("No loose parts or missing components");
+      if (!operationalChecks.exteriorCondition) missingChecks.push("Labels, warning stickers, and serial/VIN plates are intact");
+      if (!operationalChecks.locationConfirmed) missingChecks.push("Item appears safe and stable when stationary");
+      if (!operationalChecks.unitReady) missingChecks.push("Unit Ready for Purchase & Delivery");
+    
+      if (missingChecks.length > 0) {
+        toast.info(`Please complete the following checks:\n\n${missingChecks.join('\n')}`, {containerId:"vendorRequestList"});
+        return;
+      }
+    
       onSubmit(photos); 
     };
-
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-3xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto relative">
@@ -1158,8 +1192,8 @@ if (missingChecks.length > 0) {
     <MessageCircle className="w-5 h-5 mr-2" />
     Chat with Customer
   </Link>
-                    {/* Action Buttons */}
-                    {(!request.status || request.status === 'pending') ? (
+           {/* Action Buttons */}
+{(!request.status || request.status === 'pending') ? (
   <div className="flex gap-3 mt-4">
     <button
       onClick={() => handleApprove(request._id)}
@@ -1195,13 +1229,54 @@ if (missingChecks.length > 0) {
       )}
     </button>
   </div>
-) : (
-  request.approvedByUser==false?<div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+) : request.releasePayment==false && request.status=="confirmed" ? (
+  <div className="mt-4">
+    <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-lg mb-3">
+      <div className="flex items-start gap-3">
+        <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+        </div>
+        <div className="flex-1">
+          <h4 className="text-sm font-bold text-amber-900 mb-1">Action Required:</h4>
+          <p className="text-sm text-amber-800 mb-2">
+            The renter has completed payment for this item.
+          </p>
+          <p className="text-sm text-amber-800">
+            Please confirm pickup or delivery to allow RentSimple to complete the transaction and release funds to your account.
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <button
+      onClick={() => handleApprovePayment(request._id)}
+      disabled={processingId === request._id}
+      className="w-full py-3 px-4 rounded-lg font-semibold text-sm bg-green-600 hover:bg-green-700 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+    >
+      {processingId === request._id ? (
+        <>
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+          Processing...
+        </>
+      ) : (
+        <>
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Confirm Pickup/Delivery Complete
+        </>
+      )}
+    </button>
+  </div>
+) : request.approvedByUser === false ? (
+  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
     <p className="text-sm text-blue-800">
       <span className="font-semibold">Note:</span> Your order is now in pending status. Next up is delivery and installation—please be ready to confirm and complete these steps when completed.
     </p>
-  </div>:''
-)}
+  </div>
+) : null}
                     
                   </div>
                 </div>

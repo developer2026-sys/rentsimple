@@ -123,6 +123,9 @@ const [loadingCurrentLocation, setLoadingCurrentLocation] = useState(false);
     buyPrice: '',
     description: '',
     listAsActive: true,
+    warranty: false,
+    warrantyPrice: '',
+    warrantyPeriod: '',  
     publishToFeed: false,
     pickUpAddress: '',
     powerType: '', 
@@ -841,21 +844,31 @@ const handleSelectPickupSuggestion = (suggestion) => {
   <label className="block text-sm font-semibold text-gray-700 mb-2">
     Warranty
   </label>
-  <div className="flex items-center space-x-3">
+  <div className="grid grid-cols-2 gap-3">
     <button
       type="button"
-      onClick={() => setFormData({ ...formData, warranty: !formData.warranty })}
-      className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+      onClick={() => setFormData({ ...formData, warranty: true })}
+      className={`py-3 rounded-lg font-semibold transition-all ${
         formData.warranty
           ? 'bg-[#024a47] text-white'
           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
       }`}
     >
-      {formData.warranty ? 'Yes' : 'No'}
+      Yes
+    </button>
+    <button
+      type="button"
+      onClick={() => setFormData({ ...formData, warranty: false, warrantyPrice: '', warrantyPeriod: '' })}
+      className={`py-3 rounded-lg font-semibold transition-all ${
+        !formData.warranty
+          ? 'bg-[#024a47] text-white'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+      }`}
+    >
+      No
     </button>
   </div>
 </div>
-
 {formData.warranty && (
   <div>
     <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -874,6 +887,33 @@ const handleSelectPickupSuggestion = (suggestion) => {
         className="w-full pl-8 pr-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
       />
     </div>
+
+
+  
+    <div>
+      <label className="block text-sm font-semibold text-gray-700 mb-2">
+        Warranty Period *
+      </label>
+      <div className="grid grid-cols-3 gap-3">
+        {['3 months', '6 months', '12 months'].map((period) => (
+          <button
+            key={period}
+            type="button"
+            onClick={() =>
+              setFormData({ ...formData, warrantyPeriod: period })
+            }
+            className={`py-3 rounded-lg font-semibold transition-all ${
+              formData.warrantyPeriod === period
+                ? 'bg-[#024a47] text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            {period}
+          </button>
+        ))}
+      </div>
+    </div>
+
   </div>
 )}
 <div ref={pickupAddressRef} className="relative">

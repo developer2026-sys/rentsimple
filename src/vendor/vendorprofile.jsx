@@ -12,7 +12,7 @@ function VendorProfile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  
+  const [updatingStripe, setUpdatingStripe] = useState(false);
   // Form states
   const [formData, setFormData] = useState({
     name: '',
@@ -86,6 +86,9 @@ function VendorProfile() {
       [name]: value
     }));
   };
+
+
+
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
@@ -254,6 +257,45 @@ function VendorProfile() {
     );
   }
 
+
+
+  const handleUpdatePaymentDetails = async () => {
+    try {
+      setUpdatingStripe(true);
+      const token = localStorage.getItem('vendorToken');
+      
+      const response = await axios.get(
+        `${BASE_URL}/generateStripeUpdateOnboardingLink`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+  
+      const data = response.data;
+      
+      
+      // If already connected, generate an account link for updating
+      if (data.link) {
+        // Redirect to Stripe to update payment details
+        window.location.href = data.link;
+      } else {
+        toast.error('Unable to generate update link. Please contact support.', {
+          containerId: "vendorProfile"
+        });
+      }
+      
+    } catch (error) {
+      console.error('Error generating Stripe update link:', error);
+      toast.error('Failed to access payment settings. Please try again.', {
+        containerId: "vendorProfile"
+      });
+    } finally {
+      setUpdatingStripe(false);
+    }
+  };
   return (
    <>
    <ToastContainer containerId={"vendorProfile"}/>
@@ -540,6 +582,72 @@ function VendorProfile() {
             </div>
           )}
         </div>
+
+
+        {/* Payment Details Section */}
+<div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mt-4 sm:mt-6">
+  <div className="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4">
+    <div className="flex items-start space-x-3">
+      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+        <svg className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+        </svg>
+      </div>
+      <div>
+        <h3 className="text-base sm:text-lg font-semibold text-[#024a47]">
+          Payment Details
+        </h3>
+        <p className="text-xs sm:text-sm text-gray-600 mt-1">
+          Update your bank account or credit card information
+        </p>
+        <div className="mt-2 flex items-center space-x-2">
+          <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+            <Check className="w-3 h-3 mr-1" />
+            Stripe Connected
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    <button
+      onClick={handleUpdatePaymentDetails}
+      disabled={updatingStripe}
+      className="w-full sm:w-auto flex items-center justify-center space-x-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+    >
+      {updatingStripe ? (
+        <>
+          <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-white"></div>
+          <span>Loading...</span>
+        </>
+      ) : (
+        <>
+          <Edit2 className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span>Update Payment Details</span>
+        </>
+      )}
+    </button>
+  </div>
+  
+  <div className="mt-4 p-3 sm:p-4 bg-blue-50 border border-blue-100 rounded-lg">
+    <div className="flex items-start space-x-2">
+      <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <div className="text-xs sm:text-sm text-blue-800">
+        <p className="font-medium mb-1">You can update:</p>
+        <ul className="list-disc list-inside space-y-1">
+          <li>Bank account details</li>
+          <li>Debit card information</li>
+          <li>Business information</li>
+          <li>Tax details</li>
+        </ul>
+        <p className="mt-2 text-blue-700">
+          🔒 Secured by Stripe - Your data is encrypted and safe
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
       </div>
     </div>
    </>

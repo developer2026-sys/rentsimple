@@ -3,6 +3,7 @@ import { ArrowLeft, Image, X, Sparkles, Megaphone, Lightbulb, Tag, Send, AlertCi
 import axios from 'axios';
 import { BASE_URL } from '../baseUrl';
 import VendorSupportChatWidget from './vendoradminchat';
+import { toast, ToastContainer } from 'react-toastify';
 
 function CommunityPostPage() {
   const [postType, setPostType] = useState('announcement');
@@ -178,7 +179,7 @@ function CommunityPostPage() {
         setImages([]);
         setImagePreviews([]);
         setPostType('announcement');
-        alert("Post created sucessfully")
+        toast.success("Post created sucessfully",{containerId:"communityPostPage"})
         setTimeout(() => {
           setSuccess(false);
           window.location.href='/feed';
@@ -195,8 +196,11 @@ function CommunityPostPage() {
   const currentPostType = postTypes.find(pt => pt.value === postType);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+ <>
+ <ToastContainer containerId={"communityPostPage"}/>
+
+ <div className="min-h-screen bg-gray-50">
+    
       <header className="bg-white shadow-sm sticky top-0 z-10">
       <VendorSupportChatWidget/>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -215,7 +219,7 @@ function CommunityPostPage() {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Success Message */}
+      
         {success && (
           <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center space-x-3">
             <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
@@ -230,7 +234,7 @@ function CommunityPostPage() {
           </div>
         )}
 
-        {/* Error Message */}
+     
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-center space-x-3">
             <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
@@ -245,7 +249,7 @@ function CommunityPostPage() {
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* Post Type Selection */}
+         
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <h2 className="text-lg font-semibold text-[#024a47] mb-4">Select Post Type</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -270,7 +274,7 @@ function CommunityPostPage() {
             </div>
           </div>
 
-          {/* Content */}
+      
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <label className="block text-lg font-semibold text-[#024a47] mb-2">
               Content
@@ -295,7 +299,7 @@ function CommunityPostPage() {
             </div>
           </div>
 
-          {/* Link Listing */}
+        
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <label className="block text-lg font-semibold text-[#024a47] mb-2">
               Link a Listing (Optional)
@@ -329,18 +333,28 @@ function CommunityPostPage() {
             )}
             
             {!fetchingListings && listings.length === 0 && (
-              <p className="text-xs text-gray-500 mt-2">
-                You don't have any active listings yet. Create a listing first to link it here.
-              </p>
-            )}
+  <div className="mt-4 flex items-center gap-3">
+    <p className="text-sm text-gray-600">
+      You do not have any listings yet. Create a new one?
+    </p>
+    <button
+      type="button"
+      onClick={() => window.location.href = '/listening'}
+      className="px-4 py-2 bg-[#024a47] text-white rounded-md text-sm font-semibold hover:bg-[#035d59]"
+    >
+      Yes
+    </button>
+  </div>
+)}
+
             
-            {/* Debug info - remove in production */}
+            
             <p className="text-xs text-gray-400 mt-2">
               {listings.length} active listing(s) found
             </p>
           </div>
 
-          {/* Image Upload */}
+      
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <label className="block text-lg font-semibold text-[#024a47] mb-2">
               Add Images (Optional)
@@ -349,7 +363,7 @@ function CommunityPostPage() {
               Upload up to 4 images to make your post more engaging
             </p>
 
-            {/* Image Previews */}
+       
             {imagePreviews.length > 0 && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                 {imagePreviews.map((preview, index) => (
@@ -371,7 +385,7 @@ function CommunityPostPage() {
               </div>
             )}
 
-            {/* Upload Button */}
+        
             {images.length < 4 && (
               <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#024a47] transition-colors">
                 <div className="text-center">
@@ -392,7 +406,7 @@ function CommunityPostPage() {
             )}
           </div>
 
-          {/* Submit Button */}
+        
           <div className="flex justify-end space-x-4">
             <button
               type="button"
@@ -421,7 +435,7 @@ function CommunityPostPage() {
           </div>
         </form>
 
-        {/* Info Box */}
+      
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h3 className="font-semibold text-blue-900 mb-2">Community Guidelines</h3>
           <ul className="text-sm text-blue-800 space-y-1">
@@ -433,6 +447,7 @@ function CommunityPostPage() {
         </div>
       </div>
     </div>
+ </>
   );
 }
 
