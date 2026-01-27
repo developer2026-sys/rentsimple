@@ -134,9 +134,7 @@ function ListingCreationFlow() {
     pickUpAddress: '',
     powerType: '',
     deliveryPrice: '',
-    warrantyPrice: '',
     installationPrice: '',
-    warranty: false,
     installation: false,
     location: {
       city: '',
