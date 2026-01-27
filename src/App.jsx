@@ -64,7 +64,7 @@ export default function App() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       if (formData.name.length === 0 && activeTab !== "login") {
         toast.error("Please enter your name");
@@ -72,7 +72,7 @@ export default function App() {
       } else if (formData.email.length === 0) {
         toast.error("Please enter your email");
         return;
-      } else if(formData.deliveryAddress.length === 0 && activeTab !== "login") {
+      } else if (formData.deliveryAddress.length === 0 && activeTab !== "login") {
         toast.error("Please enter your delivery address");
         return;
       } else if (formData.mobile.length === 0 && activeTab !== "login") {
@@ -82,32 +82,32 @@ export default function App() {
         toast.error("Please enter your password");
         return;
       }
-  
+
       if (activeTab === "login") {
         setIsSubmitting(true);
         const response = await axios.post(`${BASE_URL}/login`, formData);
         console.log(response.data);
-        
+
         toast.success("User logged in successfully", { autoClose: 1500 });
-        
+
         localStorage.setItem("token", response.data.token);
         localStorage.setItem('userId', response.data.userId);
         localStorage.removeItem('cartItems');
-        
+
         setTimeout(() => {
           navigate('/appliance');
         }, 1500);
       } else {
         setIsSubmitting(true);
         let paymentMethodId = null;
-        
+
         console.log('Starting signup process...');
         console.log('Stripe ref available:', !!stripeElementsRef);
-        
+
         if (stripeElementsRef?.stripe && stripeElementsRef?.elements) {
           console.log('Stripe elements found, attempting to process card...');
           const cardNumberElement = stripeElementsRef.elements.getElement(CardNumberElement);
-          
+
           if (cardNumberElement) {
             try {
               console.log('Creating payment method...');
@@ -115,13 +115,13 @@ export default function App() {
                 type: 'card',
                 card: cardNumberElement,
               });
-              
+
               console.log('Stripe response - error:', error, 'paymentMethod:', paymentMethod);
-              
+
               if (error) {
-                if (error.code === 'incomplete_number' || 
-                    error.code === 'incomplete_expiry' || 
-                    error.code === 'incomplete_cvc') {
+                if (error.code === 'incomplete_number' ||
+                  error.code === 'incomplete_expiry' ||
+                  error.code === 'incomplete_cvc') {
                   console.log('Card fields incomplete/empty - OK, continuing without payment');
                 } else {
                   console.log('Real card error:', error.message);
@@ -151,21 +151,21 @@ export default function App() {
           ...formData,
           ...(paymentMethodId && { paymentMethodId })
         });
-        
+
         console.log('Registration successful:', response.data);
-        
+
         toast.success("Account created successfully!", { autoClose: 1500 });
-        
+
         localStorage.setItem("token", response.data.token);
         localStorage.setItem('userId', response.data.userId);
         localStorage.removeItem('cartItems');
-        
+
         console.log('Navigating to /appliance...');
         setTimeout(() => {
           navigate('/appliance');
         }, 1500);
       }
-      
+
     } catch (e) {
       console.log(e);
       console.log("ERROR FROM API");
@@ -182,19 +182,19 @@ export default function App() {
   const handleSkipPayment = async () => {
     try {
       setIsSubmitting(true);
-      
+
       const response = await axios.post(`${BASE_URL}/register`, formData);
-      
+
       toast.success("Account created successfully!", { autoClose: 1500 });
-      
+
       localStorage.setItem("token", response.data.token);
       localStorage.setItem('userId', response.data.userId);
       localStorage.removeItem('cartItems');
-      
+
       setTimeout(() => {
         navigate('/appliance');
       }, 1500);
-      
+
     } catch (e) {
       console.log(e);
       if (e?.response?.data?.error) {
@@ -230,7 +230,7 @@ export default function App() {
 
   return (
     <>
-      <ToastContainer 
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
@@ -241,21 +241,21 @@ export default function App() {
         draggable
         pauseOnHover
       />
-      
+
       {showAuthForm ? (
         <Elements stripe={stripePromise}>
           <div className="min-h-screen bg-[#f3f4e6] flex flex-col items-center justify-center p-4">
             <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl bg-white rounded-lg shadow-lg overflow-hidden mx-auto">
-              
+
               <div className="bg-white px-4 sm:px-6 md:px-8 pt-6 sm:pt-8 pb-4 sm:pb-6 text-center">
                 <div className="mb-3 sm:mb-4">
                   <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 bg-[#024a47] rounded-lg mb-2">
                     <svg viewBox="0 0 24 24" className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 text-white" fill="currentColor">
-                      <path d="M19 9.3V4h-3v2.6L12 3L2 12h3v8h6v-6h2v6h6v-8h3L19 9.3z"/>
-                      <circle cx="8" cy="16" r="1"/>
-                      <circle cx="16" cy="16" r="1"/>
-                      <rect x="6" y="14" width="4" height="1"/>
-                      <rect x="14" y="14" width="4" height="1"/>
+                      <path d="M19 9.3V4h-3v2.6L12 3L2 12h3v8h6v-6h2v6h6v-8h3L19 9.3z" />
+                      <circle cx="8" cy="16" r="1" />
+                      <circle cx="16" cy="16" r="1" />
+                      <rect x="6" y="14" width="4" height="1" />
+                      <rect x="14" y="14" width="4" height="1" />
                     </svg>
                   </div>
                 </div>
@@ -273,21 +273,19 @@ export default function App() {
                 <div className="bg-[#024a47] rounded-lg p-1 flex">
                   <button
                     onClick={() => setActiveTab('signup')}
-                    className={`flex-1 cursor-pointer py-3 px-4 rounded-md font-semibold transition-all ${
-                      activeTab === 'signup' 
-                        ? 'bg-white text-[#024a47]' 
+                    className={`flex-1 cursor-pointer py-3 px-4 rounded-md font-semibold transition-all ${activeTab === 'signup'
+                        ? 'bg-white text-[#024a47]'
                         : 'bg-[#024a47] text-white hover:bg-[#035d59]'
-                    }`}
+                      }`}
                   >
                     Sign Up
                   </button>
                   <button
                     onClick={() => setActiveTab('login')}
-                    className={`flex-1 cursor-pointer py-3 px-4 rounded-md font-semibold transition-all ${
-                      activeTab === 'login' 
-                        ? 'bg-white text-[#024a47]' 
+                    className={`flex-1 cursor-pointer py-3 px-4 rounded-md font-semibold transition-all ${activeTab === 'login'
+                        ? 'bg-white text-[#024a47]'
                         : 'bg-[#024a47] text-white hover:bg-[#035d59]'
-                    }`}
+                      }`}
                   >
                     Log In
                   </button>
@@ -404,13 +402,13 @@ export default function App() {
 
                   <div className="pt-3 sm:pt-4 pb-6 sm:pb-8">
                     <div className="flex flex-row items-center justify-between mb-4">
-                      <p 
+                      <p
                         onClick={() => navigate('/reset-password')}
                         className="cursor-pointer underline text-[#024a47] hover:text-[#035d59] text-sm sm:text-base"
                       >
                         Reset Password
                       </p>
-                      <p 
+                      <p
                         onClick={() => navigate('/contact')}
                         className="cursor-pointer underline text-[#024a47] hover:text-[#035d59] text-sm sm:text-base"
                       >
@@ -450,16 +448,16 @@ export default function App() {
       ) : (
         <div className="min-h-screen bg-[#f3f4e6] flex flex-col items-center justify-center p-4">
           <div className="w-full max-w-md space-y-6">
-        
+
             <div className="text-center mb-12">
               <div className="mb-6">
                 <div className="inline-flex items-center justify-center w-20 h-20 bg-[#024a47] rounded-2xl mx-auto">
                   <svg viewBox="0 0 24 24" className="w-12 h-12 text-white" fill="currentColor">
-                    <path d="M19 9.3V4h-3v2.6L12 3L2 12h3v8h6v-6h2v6h6v-8h3L19 9.3z"/>
-                    <circle cx="8" cy="16" r="1"/>
-                    <circle cx="16" cy="16" r="1"/>
-                    <rect x="6" y="14" width="4" height="1"/>
-                    <rect x="14" y="14" width="4" height="1"/>
+                    <path d="M19 9.3V4h-3v2.6L12 3L2 12h3v8h6v-6h2v6h6v-8h3L19 9.3z" />
+                    <circle cx="8" cy="16" r="1" />
+                    <circle cx="16" cy="16" r="1" />
+                    <rect x="6" y="14" width="4" height="1" />
+                    <rect x="14" y="14" width="4" height="1" />
                   </svg>
                 </div>
               </div>
@@ -500,7 +498,7 @@ export default function App() {
                       Log In
                     </button>
                   </div>
-                  
+
                   <button
                     onClick={handleBack}
                     className="w-full cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-colors text-base"
