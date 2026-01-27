@@ -278,7 +278,7 @@ export default function App() {
                         : 'bg-[#024a47] text-white hover:bg-[#035d59]'
                       }`}
                   >
-                    Sign Up
+                    Sign Up/register
                   </button>
                   <button
                     onClick={() => setActiveTab('login')}
