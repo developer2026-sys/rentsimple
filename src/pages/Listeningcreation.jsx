@@ -475,7 +475,7 @@ function ListingCreationFlow() {
         toast.error('Please select the condition', { containerId: 'listingPage' });
         return false;
       }
-      if (!formData.powerType) {
+      if (showFormSections.showPower && !formData.powerType) {
         toast.error('Please select the power type', { containerId: 'listingPage' });
         return false;
       }
