@@ -114,7 +114,7 @@ function ListingCreationFlow() {
     listAsActive: true,
     warranty: false,
     warrantyPrice: '',
-    warrantyPeriod: '',
+    warrantyPeriod: '3 months',
     publishToFeed: false,
     pickUpAddress: '',
     powerType: '',
@@ -483,6 +483,11 @@ function ListingCreationFlow() {
         toast.error('Please enter a valid warranty price', { containerId: 'listingPage' });
         return false;
       }
+      if (formData.warranty && !formData.warrantyPeriod) {
+        toast.error('Please select a warranty period', { containerId: 'listingPage' });
+        return false;
+      }
+      
       if (!formData.pickUpAddress.trim()) {
         toast.error('Please enter the pickup address', { containerId: 'listingPage' });
         return false;
@@ -573,6 +578,7 @@ function ListingCreationFlow() {
         location: formData.location,
         dimensions: formData.dimensions,
         installation: formData.installation,
+        warrantyPeriod: formData.warrantyPeriod,
         ...(formData.installation && { installationPrice: parseFloat(formData.installationPrice) }),
       };
 
@@ -679,47 +685,76 @@ function ListingCreationFlow() {
         </select>
       </div>
     </div>);
-  const renderWarranty = () => (
-    <>
-      <div> {/* warranty */}
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Warranty
-        </label>
-        <div className="flex items-center space-x-3">
-          <button
-            type="button"
-            onClick={() => setFormData({ ...formData, warranty: !formData.warranty })}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all ${formData.warranty
-              ? 'bg-[#024a47] text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-          >
-            {formData.warranty ? 'Yes' : 'No'}
-          </button>
-        </div>
+const renderWarranty = () => (
+  <>
+    <div> 
+      <label className="block text-sm font-semibold text-gray-700 mb-2">
+        Warranty
+      </label>
+      <div className="flex items-center space-x-3">
+        <button
+          type="button"
+          onClick={() => setFormData({ ...formData, warranty: true })}
+          className={`px-6 py-3 rounded-lg font-semibold transition-all ${formData.warranty
+            ? 'bg-[#024a47] text-white'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+        >
+          Yes
+        </button>
+        <button
+          type="button"
+          onClick={() => setFormData({ ...formData, warranty: false })}
+          className={`px-6 py-3 rounded-lg font-semibold transition-all ${!formData.warranty
+            ? 'bg-[#024a47] text-white'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+        >
+          No
+        </button>
       </div>
-      {formData.warranty && (
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Warranty Price *
-          </label>
-          <div className="relative">
-            <span className="absolute left-4 top-3 text-gray-600">$</span>
-            <input
-              type="number"
-              name="warrantyPrice"
-              value={formData.warrantyPrice}
+    </div>
+    {formData.warranty && (
+      <>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Warranty Price *
+            </label>
+            <div className="relative">
+              <span className="absolute left-4 top-3 text-gray-600">$</span>
+              <input
+                type="number"
+                name="warrantyPrice"
+                value={formData.warrantyPrice}
+                onChange={handleInputChange}
+                placeholder="49.99"
+                step="0.01"
+                min="0"
+                className="w-full pl-8 pr-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Warranty Period *
+            </label>
+            <select
+              name="warrantyPeriod"
+              value={formData.warrantyPeriod}
               onChange={handleInputChange}
-              placeholder="49.99"
-              step="0.01"
-              min="0"
-              className="w-full pl-8 pr-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
-            />
+              className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+            >
+              <option value="3 months">3 Months</option>
+              <option value="6 months">6 Months</option>
+              <option value="12 months">12 Months</option>
+            </select>
           </div>
         </div>
-      )}
-    </>
-  );
+      </>
+    )}
+  </>
+);
 
   return (
     <>
@@ -1230,13 +1265,21 @@ function ListingCreationFlow() {
                       </span>
                     </div>
                     {formData.warranty && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Warranty Price:</span>
-                        <span className="font-semibold">
-                          ${formData.warrantyPrice}
-                        </span>
-                      </div>
-                    )}
+  <>
+    <div className="flex justify-between">
+      <span className="text-gray-600">Warranty Price:</span>
+      <span className="font-semibold">
+        ${formData.warrantyPrice}
+      </span>
+    </div>
+    <div className="flex justify-between">
+      <span className="text-gray-600">Warranty Period:</span>
+      <span className="font-semibold">
+        {formData.warrantyPeriod}
+      </span>
+    </div>
+  </>
+)}
                   </div >
                 </div >
               </div >

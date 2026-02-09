@@ -566,7 +566,8 @@ function RenterDashboard() {
             ) : (
               <div className="space-y-4">
                 {activeRentals.map((rental) => (
-                  <div key={rental.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <Link to='/activerentals'>
+                   <div key={rental.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
                         {rental.image ? (
@@ -619,6 +620,8 @@ function RenterDashboard() {
                       </span>
                     </div>
                   </div>
+                  </Link>
+                 
                 ))}
               </div>
             )}
@@ -638,6 +641,8 @@ function RenterDashboard() {
             ) : (
               <div className="space-y-4">
                 {completedOrders.map((order) => (
+                  
+                <Link to='/completedRenterRentals'>
                   <div key={order.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors gap-4">
                     <div className="flex items-center space-x-4 flex-1">
                       <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -672,6 +677,7 @@ function RenterDashboard() {
                       </span>
                     </div>
                   </div>
+                </Link>
                 ))}
               </div>
             )}
