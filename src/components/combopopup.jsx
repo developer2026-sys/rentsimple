@@ -743,16 +743,30 @@ useEffect(() => {
     </span>
   </p>
   <div className="text-sm text-gray-600 mt-2 space-y-1">
-    {selectedComboAppliance?.warranty && selectedComboAppliance?.warrantyPrice && (
-      <p>(Includes ${selectedComboAppliance.warrantyPrice}/mo Warranty Protection)</p>
-    )}
+  {selectedComboAppliance?.warranty && selectedComboAppliance?.warrantyPrice && (
+  <p>
+    (Includes ${selectedComboAppliance.warrantyPrice}/mo Warranty Protection
+    {selectedComboAppliance?.warrantyPeriod ? ` · ${selectedComboAppliance.warrantyPeriod}` : ''})
+  </p>
+)}
     {selectedInstallOption === 'installation' && selectedComboAppliance?.installationPrice && (
       <p>(Includes ${selectedComboAppliance.installationPrice}/mo Installation)</p>
     )}
   </div>
 </div>
         
-
+{selectedComboAppliance?.warranty && (
+  <div className="mb-8 text-center p-4 bg-gray-50 rounded-lg">
+    <h3 className="text-lg font-bold text-gray-900 mb-2">WARRANTY</h3>
+    <p className="text-gray-700">
+      Warranty protection is included with this listing
+      <span className="block text-sm mt-1">
+        (+${selectedComboAppliance?.warrantyPrice || 0}/mo
+        {selectedComboAppliance?.warrantyPeriod ? ` · ${selectedComboAppliance.warrantyPeriod}` : ''})
+      </span>
+    </p>
+  </div>
+)}
 <div className="mb-8 text-center p-4 bg-gray-50 rounded-lg">
   <h3 className="text-lg font-bold text-gray-900 mb-2">INSTALLATION</h3>
   <p className="text-gray-700">
