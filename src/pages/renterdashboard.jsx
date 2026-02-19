@@ -566,7 +566,7 @@ function RenterDashboard() {
             ) : (
               <div className="space-y-4">
                 {activeRentals.map((rental) => (
-                  <Link to='/activerentals'>
+                  <Link to='/activeRenterRentals'>
                    <div key={rental.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">

@@ -73,6 +73,7 @@ import ActiveRentals from './vendor/activeRentals.jsx'
 import ActiveRenterRentals from './pages/ActiveRenterRental.jsx'
 import CompletedRenterRentals from './pages/CompletedRenterRent.jsx'
 import { STRIPE_PUBLISH_KEY } from './baseUrl.jsx';
+import VendorApproval from './adminpages/vendorapprove.jsx'
 
 const stripePromise = loadStripe(STRIPE_PUBLISH_KEY);
 
@@ -142,6 +143,7 @@ createRoot(document.getElementById('root')).render(
                 <Route path="users" element={<AdminUserManagement />} />
                 <Route path="rentals" element={<RentalsManagement />} />
                 <Route path='vendors' element={<VendorManagement />} />
+                <Route path='vendorApproval' element={<VendorApproval/>}/>
                 <Route path="subscriptions" element={<AdminSubscriptionManagement />} />
                 <Route path="inventory" element={<AdminInventoryManagement />} />
                 <Route path="analytics" element={<AdminAnalytics />} />
