@@ -84,11 +84,12 @@ createRoot(document.getElementById('root')).render(
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<App />} />
+            <Route path="/appliance" element={<ApplianceRentalPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path='/renterDashboard' element={<RenterDashboard />} />
               <Route path='/activeRenterRentals' element={<ActiveRenterRentals />} />
               <Route path='/profile' element={<UserProfile />} />
-              <Route path="/appliance" element={<ApplianceRentalPage />} />
+             
               <Route path='/userchat' element={<UserChatPage />} />
               <Route path='/renterconfirmation' element={<UnitPurchasePage />} />
               <Route path='/completedRenterRentals' element={<CompletedRenterRentals />} />

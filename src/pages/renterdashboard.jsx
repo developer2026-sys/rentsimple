@@ -16,6 +16,7 @@ function RenterDashboard() {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [ticketStatus, setTicketStatus] = useState(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState(null);
@@ -23,8 +24,40 @@ function RenterDashboard() {
   const [newMessagesLength, setNewMessagesLength] = useState(0)
   const menuRef = useRef();
   const [open, setOpen] = useState(false)
+  const [supportTickets, setSupportTickets] = useState([]);
+const [ticketsLoading, setTicketsLoading] = useState(false);
+const [openTicketId, setOpenTicketId] = useState(null);
+
   useEffect(() => {
     fetchDashboardData();
+  }, []);
+
+
+
+  useEffect(() => {
+    const fetchSupportTickets = async () => {
+      try {
+        setTicketsLoading(true);
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${BASE_URL}/getUserTickets`, {
+          params: { userType: 'user' },
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.data.ticket) {
+          setSupportTickets(
+            Array.isArray(response.data.ticket)
+              ? response.data.ticket
+              : [response.data.ticket]
+          );
+        }
+      } catch (err) {
+        console.error('Error fetching support tickets:', err);
+      } finally {
+        setTicketsLoading(false);
+      }
+    };
+  
+    fetchSupportTickets();
   }, []);
 
   const fetchDashboardData = async () => {
@@ -218,7 +251,7 @@ function RenterDashboard() {
       color: 'bg-blue-500'
     },
     {
-      label: 'Pending Approvals',
+      label: 'Pending Delivery Approvals',
       value: pendingApprovalsCount, // Use calculated count from array
       icon: Clock,
       color: 'bg-yellow-500'
@@ -799,6 +832,68 @@ function RenterDashboard() {
             )}
           </div>
 
+{/* Support Tickets */}
+<div className="bg-white rounded-lg shadow-md p-6 mb-20 lg:mb-6">
+  <div className="flex justify-between items-center mb-6">
+    <h2 className="text-2xl font-bold text-[#024a47]">Support Tickets</h2>
+  </div>
+
+  {ticketsLoading ? (
+    <div className="flex justify-center py-8">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#024a47]"></div>
+    </div>
+  ) : supportTickets.length === 0 ? (
+    <div className="text-center py-8 text-gray-500">
+      <MessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+      <p>No support tickets yet</p>
+    </div>
+  ) : (
+    <div className="space-y-4">
+      {supportTickets.map((ticket) => (
+    <div
+    key={ticket._id}
+    onClick={() => setOpenTicketId(ticket._id)}
+    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors gap-3 cursor-pointer"
+  >
+          <div className="flex items-center space-x-4 flex-1">
+            <div className="w-12 h-12 bg-[#024a47] rounded-lg flex items-center justify-center flex-shrink-0">
+              <MessageSquare className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-[#024a47]">{ticket.subject || 'Support Request'}</h3>
+              <p className="text-xs text-gray-500">
+                Ticket ID: {ticket._id?.slice(-8).toUpperCase()}
+              </p>
+              <p className="text-xs text-gray-500">
+                Last updated: {new Date(ticket.lastMessageAt).toLocaleDateString('en-US', {
+                  year: 'numeric', month: 'short', day: 'numeric'
+                })}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <span className={`px-2 py-1 rounded-full text-xs font-semibold capitalize ${
+              ticket.priority === 'urgent' ? 'bg-red-100 text-red-800' :
+              ticket.priority === 'high'   ? 'bg-orange-100 text-orange-800' :
+              ticket.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+              'bg-gray-100 text-gray-700'
+            }`}>
+              {ticket.priority}
+            </span>
+            <span className={`px-3 py-1 rounded-full text-sm font-semibold capitalize ${
+              ticket.status === 'open'     ? 'bg-blue-100 text-blue-800' :
+              ticket.status === 'pending'  ? 'bg-yellow-100 text-yellow-800' :
+              ticket.status === 'resolved' ? 'bg-green-100 text-green-800' :
+              'bg-gray-100 text-gray-700'
+            }`}>
+              {ticket.status}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
 
           <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 lg:hidden">
             <div className="flex justify-around py-3">
@@ -839,7 +934,7 @@ function RenterDashboard() {
           </div>
         </div>
         {showRejectModal && <RejectDeliveryModal />}
-        <SupportChatWidget />
+        <SupportChatWidget openTicketId={openTicketId} onClose={() => setOpenTicketId(null)} />
       </div>
     </>
   );

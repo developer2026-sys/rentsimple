@@ -472,7 +472,7 @@ export default function App() {
                     onClick={handleWantToRent}
                     className="w-full bg-white hover:bg-gray-50 text-[#024a47] text-2xl font-semibold py-6 px-6 rounded-2xl border-3 border-[#024a47] transition-all shadow-md hover:shadow-lg"
                   >
-                    I Want to Rent
+                      Marketplace
                   </button>
 
                   <button

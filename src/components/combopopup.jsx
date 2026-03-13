@@ -14,10 +14,12 @@ const ComboPopup = ({open,onClose,newMessagesLength,setOpen,menuRef,user,selecte
   const [isEditingPickupAddress, setIsEditingPickupAddress] = useState(false);
 const [pickupAddressAccepted, setPickupAddressAccepted] = useState(false);
 const [newPickupAddress, setNewPickupAddress] = useState({
+  street: '',
   city: '',
   state: '',
   zipCode: ''
 });
+
 const [deliveryAddress, setDeliveryAddress] = useState({
   street: '',
   city: '',
@@ -59,10 +61,12 @@ console.log(selectedComboAppliance)
 
 
 FIXED_WARRANTY_FEE=selectedComboAppliance.warrantyPrice
+const userTypingRef = useRef(false);
   const wrapperRefs = {
     street: useRef(null),
     city: useRef(null),
     state: useRef(null),
+    
     country: useRef(null)
   };
 
@@ -148,15 +152,23 @@ FIXED_WARRANTY_FEE=selectedComboAppliance.warrantyPrice
       let formattedSuggestions = [];
       
       if (field === 'street') {
-        formattedSuggestions = data.map(item => ({
-          displayName: item.display_name,
-          street: item.address?.road || item.address?.street || '',
-          houseNumber: item.address?.house_number || '',
-          city: item.address?.city || item.address?.town || item.address?.village || '',
-          state: item.address?.state || '',
-          zipCode: item.address?.postcode || '',
-          country: item.address?.country || ''
-        }));
+        formattedSuggestions = data.map(item => {
+          const road = item.address?.road || item.address?.street || item.address?.pedestrian || item.address?.footway || '';
+          const houseNumber = item.address?.house_number || '';
+          const city = item.address?.city || item.address?.town || item.address?.village || item.address?.suburb || '';
+          const state = item.address?.state || '';
+          const zipCode = item.address?.postcode || '';
+          const streetDisplay = houseNumber ? `${houseNumber} ${road}`.trim() : road;
+          return {
+            displayName: [streetDisplay, city, state, zipCode].filter(Boolean).join(', '),
+            street: road,
+            houseNumber,
+            city,
+            state,
+            zipCode,
+            country: 'United States'
+          };
+        }).filter(item => item.street);
       } else if (field === 'city') {
         formattedSuggestions = data
           .filter(item => item.address?.city || item.address?.town || item.address?.village)
@@ -201,28 +213,28 @@ FIXED_WARRANTY_FEE=selectedComboAppliance.warrantyPrice
   // Debounce for each field
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (deliveryAddress.street) fetchSuggestions(deliveryAddress.street, 'street');
+      if (deliveryAddress.street && userTypingRef.current) fetchSuggestions(deliveryAddress.street, 'street');
     }, 300);
     return () => clearTimeout(timer);
   }, [deliveryAddress.street]);
-
+  
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (deliveryAddress.city) fetchSuggestions(deliveryAddress.city, 'city');
+      if (deliveryAddress.city && userTypingRef.current) fetchSuggestions(deliveryAddress.city, 'city');
     }, 300);
     return () => clearTimeout(timer);
   }, [deliveryAddress.city]);
-
+  
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (deliveryAddress.state) fetchSuggestions(deliveryAddress.state, 'state');
+      if (deliveryAddress.state && userTypingRef.current) fetchSuggestions(deliveryAddress.state, 'state');
     }, 300);
     return () => clearTimeout(timer);
   }, [deliveryAddress.state]);
-
+  
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (deliveryAddress.country) fetchSuggestions(deliveryAddress.country, 'country');
+      if (deliveryAddress.country && userTypingRef.current) fetchSuggestions(deliveryAddress.country, 'country');
     }, 300);
     return () => clearTimeout(timer);
   }, [deliveryAddress.country]);
@@ -275,6 +287,7 @@ useEffect(() => {
 }, [selectedDeliveryOption]);
 
   const handleInputChange = (field, value) => {
+    userTypingRef.current = true;
     setDeliveryAddress(prev => ({ ...prev, [field]: value }));
     setShowSuggestions(prev => ({ ...prev, [field]: true }));
   };
@@ -285,13 +298,13 @@ useEffect(() => {
         ? `${suggestion.houseNumber} ${suggestion.street}`.trim()
         : suggestion.street || suggestion.displayName.split(',')[0];
   
-      setDeliveryAddress({
+      setDeliveryAddress(prev => ({
         street: fullStreet,
-        city: suggestion.city || '', 
-        state: suggestion.state || '',  
-        zipCode: suggestion.zipCode || '',  
-        country: suggestion.country || ''  
-      });
+        city: suggestion.city || prev.city, 
+        state: suggestion.state || prev.state,  
+        zipCode: suggestion.zipCode || prev.zipCode,  
+        country: suggestion.country || prev.country || 'United States'
+      }));
     } else if (field === 'city') {
       setDeliveryAddress(prev => ({
         ...prev,
@@ -311,6 +324,8 @@ useEffect(() => {
         country: suggestion.country
       }));
     }
+
+    userTypingRef.current = false;
     
     setShowSuggestions(prev => ({ ...prev, [field]: false }));
     setSuggestions(prev => ({ ...prev, [field]: [] }));
@@ -336,7 +351,7 @@ useEffect(() => {
 
       
       if (selectedDeliveryOption === 'pickup' && newPickupAddress) {
-        const pickupAddressString = `${newPickupAddress.city}, ${newPickupAddress.state} ${newPickupAddress.zipCode}`.trim();
+        const pickupAddressString = `${newPickupAddress.street ? newPickupAddress.street + ', ' : ''}${newPickupAddress.city}, ${newPickupAddress.state} ${newPickupAddress.zipCode}`.trim();
         requestBody.pickUpAddress = pickupAddressString;
       }
       if (selectedDeliveryOption === 'pickup' && !pickupAddressAccepted) {
@@ -365,6 +380,8 @@ useEffect(() => {
       setIsSubmitting(false);
     }
   };
+
+ 
 
 
   useEffect(() => {
@@ -567,53 +584,59 @@ useEffect(() => {
         </label>
       </>
     ) : (
-      <div className="space-y-4">
-        <LocationSuggestionFieldPickup
-          value={newPickupAddress}
-          onChange={setNewPickupAddress}
-          name="pickup-location"
-          required={true}
+      <div className="space-y-3 w-full">
+        <input
+          type="text"
+          placeholder="Street Address"
+          value={newPickupAddress.street || ''}
+          onChange={(e) => setNewPickupAddress({...newPickupAddress, street: e.target.value})}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+          required
         />
-       <div className="space-y-4">
-  <input
-    type="text"
-    placeholder="City"
-    value={newPickupAddress.city}
-    onChange={(e) => setNewPickupAddress({...newPickupAddress, city: e.target.value})}
-    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
-    required
-  />
-  <input
-    type="text"
-    placeholder="State"
-    value={newPickupAddress.state}
-    onChange={(e) => setNewPickupAddress({...newPickupAddress, state: e.target.value})}
-    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
-    required
-  />
-  <input
-    type="text"
-    placeholder="Zip Code"
-    value={newPickupAddress.zipCode}
-    onChange={(e) => setNewPickupAddress({...newPickupAddress, zipCode: e.target.value})}
-    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
-    required
-  />
-  <button
-    type="button"
-    onClick={() => {
-      if (newPickupAddress.city && newPickupAddress.state && newPickupAddress.zipCode) {
-        setIsEditingPickupAddress(false);
-        setPickupAddressAccepted(false);
-      } else {
-        toast.info('Please fill in all address fields', {containerId:"combopopup"});
-      }
-    }}
-    className="px-4 py-2 bg-[#024a47] text-white rounded-lg hover:bg-[#036661] text-sm font-medium"
-  >
-    Save Address
-  </button>
-</div>
+        <input
+          type="text"
+          placeholder="City"
+          value={newPickupAddress.city}
+          onChange={(e) => setNewPickupAddress({...newPickupAddress, city: e.target.value})}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+          required
+        />
+        <input
+          type="text"
+          placeholder="State"
+          value={newPickupAddress.state}
+          onChange={(e) => setNewPickupAddress({...newPickupAddress, state: e.target.value})}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+          required
+        />
+        <input
+          type="text"
+          placeholder="Zip Code"
+          value={newPickupAddress.zipCode}
+          onChange={(e) => setNewPickupAddress({...newPickupAddress, zipCode: e.target.value})}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+          required
+        />
+        <input
+          type="text"
+          value="United States"
+          disabled
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
+        />
+        <button
+          type="button"
+          onClick={() => {
+            if (newPickupAddress.city && newPickupAddress.state && newPickupAddress.zipCode) {
+              setIsEditingPickupAddress(false);
+              setPickupAddressAccepted(false);
+            } else {
+              toast.info('Please fill in all address fields', {containerId:"combopopup"});
+            }
+          }}
+          className="px-4 py-2 bg-[#024a47] text-white rounded-lg hover:bg-[#036661] text-sm font-medium"
+        >
+          Save Address
+        </button>
       </div>
     )}
   </div>
@@ -653,52 +676,33 @@ useEffect(() => {
               <h3 className="text-lg font-bold text-gray-900 mb-4">DELIVERY ADDRESS</h3>
               <div className="space-y-3">
                 
-                <div ref={wrapperRefs.street} className="relative">
-                  <input
-                    type="text"
-                    placeholder="Start typing street address..."
-                    value={deliveryAddress.street}
-                    onChange={(e) => handleInputChange('street', e.target.value)}
-                    onFocus={() => suggestions.street.length > 0 && setShowSuggestions(prev => ({ ...prev, street: true }))}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
-                    autoComplete="off"
-                    required
-                  />
-                  {renderSuggestionDropdown('street')}
-                </div>
+              <input
+  type="text"
+  placeholder="Street Address"
+  value={deliveryAddress.street}
+  onChange={(e) => setDeliveryAddress(prev => ({ ...prev, street: e.target.value }))}
+  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+  required
+/>
 
-                <div className="grid grid-cols-2 gap-3">
-                 
-                  <div ref={wrapperRefs.city} className="relative">
-                    <input
-                      type="text"
-                      placeholder="City"
-                      value={deliveryAddress.city}
-                      onChange={(e) => handleInputChange('city', e.target.value)}
-                      onFocus={() => suggestions.city.length > 0 && setShowSuggestions(prev => ({ ...prev, city: true }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
-                      autoComplete="off"
-                      required
-                    />
-                    {renderSuggestionDropdown('city')}
-                  </div>
-                  
-              
-                  <div ref={wrapperRefs.state} className="relative">
-                    <input
-                      type="text"
-                      placeholder="State"
-                      value={deliveryAddress.state}
-                      onChange={(e) => handleInputChange('state', e.target.value)}
-                      onFocus={() => suggestions.state.length > 0 && setShowSuggestions(prev => ({ ...prev, state: true }))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
-                      autoComplete="off"
-                      required
-                    />
-                    {renderSuggestionDropdown('state')}
-                  </div>
-                </div>
-                
+<div className="grid grid-cols-2 gap-3">
+  <input
+    type="text"
+    placeholder="City"
+    value={deliveryAddress.city}
+    onChange={(e) => setDeliveryAddress(prev => ({ ...prev, city: e.target.value }))}
+    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+    required
+  />
+  <input
+    type="text"
+    placeholder="State"
+    value={deliveryAddress.state}
+    onChange={(e) => setDeliveryAddress(prev => ({ ...prev, state: e.target.value }))}
+    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+    required
+  />
+</div>
                 <div className="grid grid-cols-2 gap-3">
              
                   <input
@@ -725,7 +729,7 @@ useEffect(() => {
        
 <div className="mb-8 pb-8 text-center border-b border-gray-200">
   <p className="text-lg text-gray-900">
-    Estimated monthly payment: 
+  Estimated monthly payment:{' '}
     <span className="font-bold">
       ${(() => {
         let total = parseFloat(selectedComboAppliance?.pricing?.rentPrice || 0);

@@ -32,6 +32,7 @@ const [applianceToReject, setApplianceToReject] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState({});
   const [showComboPopup, setShowComboPopup] = useState(false);
   const [newMessagesLength,setNewMessagesLength]=useState(0)
+  const isLoggedIn = !!localStorage.getItem('token');
   useEffect(() => {
     const applianceId = searchParams.get('appliance');
     if (applianceId && appliances.length > 0) {
@@ -101,9 +102,12 @@ const [applianceToReject, setApplianceToReject] = useState(null);
 
 
   useEffect(() => {
-    getProducts();
-    getUserRequests();
-    getNewMessages();
+    const token = localStorage.getItem('token');
+    getProducts(token);
+    if (token) {
+      getUserRequests();
+      getNewMessages();
+    }
   }, []);
 
 
@@ -265,12 +269,11 @@ setNewMessagesLength(response.data.messagesLength)
 
   const getProducts = async () => {
     try {
-      let token=localStorage.getItem('token')
-      let response = await axios.get(`${BASE_URL}/getUserListenings`,{
-        headers:{
-          Authorization:`Bearer ${token}`
-        }
-      });
+      const token = localStorage.getItem('token');
+      let response = await axios.get(
+        token ? `${BASE_URL}/getUserListenings` : `${BASE_URL}/getAllListenings`,
+        token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+      );
       const listenings = response.data.listenings || [];
       console.log(listenings)
       console.log("LIstenings")
@@ -291,8 +294,9 @@ setNewMessagesLength(response.data.messagesLength)
 
 
   const trackView = async (listingId) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
     try {
-      const token = localStorage.getItem('token');
       await axios.post(`${BASE_URL}/trackView/${listingId}`, {}, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -429,7 +433,7 @@ const getRejectionReasons = (listingId) => {
   return (
     <>
       <ToastContainer containerId={"productsPage"} />
-      <SupportChatWidget/>
+      {isLoggedIn && <SupportChatWidget/>}
       {showRejectModal && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
     <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[90vh] overflow-y-auto">
@@ -562,7 +566,7 @@ const getRejectionReasons = (listingId) => {
   </h1>
 
 
-  <div className="relative" ref={menuRef}>
+  {isLoggedIn && <div className="relative" ref={menuRef}>
     
     
   <div
@@ -616,7 +620,7 @@ const getRejectionReasons = (listingId) => {
       </div>
     )}
 
-  </div>
+  </div>}
 </div>
 
 
@@ -1122,7 +1126,7 @@ const getRejectionReasons = (listingId) => {
 >
   Reject Offer
 </button>:<button
-                        onClick={() => handleSelect(appliance)}
+                        onClick={() => isLoggedIn ? handleSelect(appliance) : navigate('/')}
                         disabled={!appliance.availability?.isAvailable}
                         className={`w-full cursor-pointer py-3 px-6 rounded-lg font-semibold text-lg transition-colors ${
                           !appliance.availability?.isAvailable
@@ -1138,7 +1142,7 @@ const getRejectionReasons = (listingId) => {
                     
                     <button
                       onClick={() => {
-                        navigate(`/userchat?vendor=${appliance?.vendor?._id}`)
+                        isLoggedIn ? navigate(`/userchat?vendor=${appliance?.vendor?._id}`) : navigate('/')
                       }}
                       className="w-full cursor-pointer py-3 px-6 rounded-lg font-semibold text-lg bg-[#024a47] hover:bg-[#035d59] text-white transition-colors"
                     >

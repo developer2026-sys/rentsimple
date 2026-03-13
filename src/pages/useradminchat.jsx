@@ -15,7 +15,7 @@ import { BASE_URL } from '../baseUrl';
 import { SocketContext } from '../context/socketContext';
 import { toast, ToastContainer } from 'react-toastify';
 
-const SupportChatWidget = () => {
+const SupportChatWidget = ({ openTicketId = null, onClose }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -24,6 +24,7 @@ const SupportChatWidget = () => {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
   const [ticketId, setTicketId] = useState(null);
+  const [ticketStatus, setTicketStatus] = useState(null);
   const messagesEndRef = useRef(null);
   const socketRef = useContext(SocketContext);
 
@@ -35,10 +36,57 @@ const SupportChatWidget = () => {
   }, [messages, isOpen, isMinimized]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !openTicketId) {
       fetchSupportMessages();
     }
   }, [isOpen]);
+
+
+  useEffect(() => {
+    if (openTicketId) {
+      setMessages([]);
+      setTicketId(null);
+      setIsOpen(true);
+      setIsMinimized(false);
+      fetchMessagesByTicketId(openTicketId);
+    }
+  }, [openTicketId]);
+
+  const fetchMessagesByTicketId = async (ticketId) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${BASE_URL}/getTicketMessages`, {
+        params: { ticketId },
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+  
+      setTicketId(ticketId); // use the ticketId we already have
+      
+      const msgs = response.data.messages || [];
+      if (msgs.length > 0 && msgs[0].ticketId?.status) {
+        setTicketStatus(msgs[0].ticketId.status);
+      } else {
+        setTicketStatus('open'); 
+      }
+
+      const transformedMessages = msgs.map(msg => ({
+        id: msg._id,
+        text: msg.message,
+        sender: msg.sentBy,
+        timestamp: new Date(msg.createdAt),
+        read: msg.sentBy === 'user' || msg.sentBy === 'vendor'
+          ? msg.seenByAdmin
+          : msg.seenByUser
+      }));
+      setMessages(transformedMessages);
+      setHasUnread(msgs.some(msg => msg.sentBy === 'admin' && !msg.seenByUser));
+  
+    } catch (error) {
+      console.error('Error fetching ticket messages:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
 useEffect(() => {
@@ -278,9 +326,13 @@ useEffect(() => {
     });
   };
 
+
   const toggleChat = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen) {
+    if (isOpen) {
+      setIsOpen(false);
+      if (onClose) onClose();
+    } else {
+      setIsOpen(true);
       setIsMinimized(false);
     }
   };
@@ -401,7 +453,7 @@ useEffect(() => {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                {ticketId && (
+                {/* {ticketId && (
                   <button
                     onClick={closeTicket}
                     className="hover:bg-red-600 bg-red-500 px-2 py-1 rounded transition-colors text-xs font-medium"
@@ -409,7 +461,7 @@ useEffect(() => {
                   >
                     Close
                   </button>
-                )}
+                )} */}
                 <button
                   onClick={() => setIsMinimized(!isMinimized)}
                   className="hover:bg-[#035d59] p-1.5 rounded transition-colors"
@@ -482,36 +534,51 @@ useEffect(() => {
                 </div>
 
                 <div className="bg-white border-t border-gray-200 p-3">
-                  <div className="flex items-end space-x-2">
-                    <textarea
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder="Type your message..."
-                      rows="1"
-                      className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47] focus:border-transparent resize-none"
-                      style={{ minHeight: '36px', maxHeight: '100px' }}
-                    />
-                    <button
-                      onClick={sendMessage}
-                      disabled={!newMessage.trim() || sendingMessage}
-                      className={`p-2 rounded-lg transition-colors ${
-                        newMessage.trim() && !sendingMessage
-                          ? 'bg-[#024a47] text-white hover:bg-[#035d59]'
-                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                      }`}
-                    >
-                      {sendingMessage ? (
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <Send className="w-5 h-5" />
-                      )}
-                    </button>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-2 text-center">
-                    Ticket #{ticketId ? ticketId.slice(-8) : 'New'}
-                  </p>
-                </div>
+                {ticketStatus && ticketStatus !== 'open' ? (
+    <div className="text-center py-3 px-4 bg-gray-100 rounded-lg">
+      <p className="text-sm text-gray-500 font-medium capitalize">
+        This ticket is <span className="text-gray-700">{ticketStatus}</span> — replies are disabled.
+      </p>
+    </div>
+  ) : (
+    <div className="flex items-end space-x-2">
+      <textarea
+        value={newMessage}
+        onChange={(e) => setNewMessage(e.target.value)}
+        onKeyPress={handleKeyPress}
+        placeholder="Type your message..."
+        rows="1"
+        className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47] focus:border-transparent resize-none"
+        style={{ minHeight: '36px', maxHeight: '100px' }}
+      />
+      <button
+        onClick={sendMessage}
+        disabled={!newMessage.trim() || sendingMessage}
+        className={`p-2 rounded-lg transition-colors ${
+          newMessage.trim() && !sendingMessage
+            ? 'bg-[#024a47] text-white hover:bg-[#035d59]'
+            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+        }`}
+      >
+        {sendingMessage ? (
+          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        ) : (
+          <Send className="w-5 h-5" />
+        )}
+      </button>
+    </div>
+  )}
+ <p className="text-xs text-gray-500 mt-2 text-center">
+  {ticketId ? (
+    <>
+      Ticket <span className="font-semibold text-gray-700">#{ticketId.slice(-8).toUpperCase()}</span>
+      {' '}— <span className="text-amber-600 font-medium">Please note your ticket number for reference.</span>
+    </>
+  ) : (
+    'A ticket number will be assigned once you send your first message.'
+  )}
+</p>
+</div>
               </>
             )}
           </div>
