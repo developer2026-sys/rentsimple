@@ -1,3 +1,3 @@
 export const BASE_URL="https://rentsimpledeals.dev/api"
 
-export const STRIPE_PUBLISH_KEY = import.meta.env.VITE_STRIPE_PUBLISH_KEY; // make sure to add the stripe publish key into the env file
+export const STRIPE_PUBLISH_KEY = "pk_test_51SRynCPBwgTANTk6OM3ADMEkOYuyTGcfBfz92xAXVsLmm8O6tH7dCVgcwhG4rmi5OH3URGSa6faVFD2WYbI7E8oA00drLGc9l6"
