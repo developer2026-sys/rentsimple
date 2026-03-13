@@ -354,7 +354,7 @@ useEffect(() => {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                {/* {ticketId && (
+                {ticketId && (
                   <button
                     onClick={closeTicket}
                     className="hover:bg-red-600 bg-red-500 px-2 py-1 rounded transition-colors text-xs font-medium"
@@ -362,7 +362,7 @@ useEffect(() => {
                   >
                     Close
                   </button>
-                )} */}
+                )}
                 <button
                   onClick={() => setIsMinimized(!isMinimized)}
                   className="hover:bg-[#035d59] p-1.5 rounded transition-colors"
