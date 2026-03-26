@@ -29,7 +29,7 @@ const LocationSuggestionField = ({ value, onChange, name = "location", required 
       setLoading(true);
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&limit=5&addressdetails=1`,
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&limit=5&addressdetails=1&countrycodes=us`,
           {
             headers: {
               'User-Agent': 'LocationSuggestionApp/1.0'
@@ -39,14 +39,16 @@ const LocationSuggestionField = ({ value, onChange, name = "location", required 
         
         const data = await response.json();
         
-        const formattedSuggestions = data.map(item => ({
-          name: item.display_name,
-          city: item.address?.city || item.address?.town || item.address?.village || '',
-          state: item.address?.state || '',
-          country: item.address?.country || '',
-          latitude: parseFloat(item.lat),
-          longitude: parseFloat(item.lon)
-        }));
+        const formattedSuggestions = data
+          .filter(item => item.address?.country_code === 'us')
+          .map(item => ({
+            name: item.display_name,
+            city: item.address?.city || item.address?.town || item.address?.village || '',
+            state: item.address?.state || '',
+            country: item.address?.country || '',
+            latitude: parseFloat(item.lat),
+            longitude: parseFloat(item.lon)
+          }));
         
         setSuggestions(formattedSuggestions);
         setShowSuggestions(true);
@@ -122,7 +124,7 @@ const LocationSuggestionField = ({ value, onChange, name = "location", required 
 
       {showSuggestions && !loading && value && value.length >= 3 && suggestions.length === 0 && (
         <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-b shadow-lg mt-1 px-3 py-2 text-sm text-gray-500">
-          No locations found
+          No US locations found
         </div>
       )}
     </div>

@@ -26,11 +26,12 @@ const [useSavedCard, setUseSavedCard] = useState(true);
     return serviceFee;
   };
   const getWarrantyFee = () => {
-    if (request?.listing?.powerType === 'Warranty') {
-      return FIXED_WARRANTY_FEE;
+    if (request?.listing?.warranty) {
+      return request?.listing?.warrantyPrice || FIXED_WARRANTY_FEE;
     }
     return 0;
   };
+  
   const [request, setRequest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -42,7 +43,7 @@ const [useSavedCard, setUseSavedCard] = useState(true);
   const [receiptDownloaded, setReceiptDownloaded] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxStartIndex, setLightboxStartIndex] = useState(0);
-
+  const [paymentTos, setPaymentTos] = useState(false);
   useEffect(() => {
     const id = searchParams.get('id');
     if (id) {
@@ -128,6 +129,11 @@ const handlePayment = async () => {
     return;
   }
 
+  if (!paymentTos) {
+    toast.error('Please agree to the Terms of Service to continue.', { containerId: "renterConfirmationPage" });
+    return;
+  }
+
   setProcessing(true);
   try {
     const id = searchParams.get('id');
@@ -193,6 +199,7 @@ const handlePayment = async () => {
       { 
         id, 
         totalPrice: finalTotal,
+        paymenttos: paymentTos,
         creditsUsed: creditsApplied,
         totalBeforeCredits: totalBeforeCredits,
         paymentMethodId: paymentMethodId,
@@ -300,7 +307,7 @@ const handlePayment = async () => {
   ${'-'.repeat(50)}
   
   First Month Rent          $${request.listing?.pricing?.rentPrice}
-  ${request?.listing?.powerType === 'Warranty'
+  ${request?.listing?.warranty
     ? `Warranty Protection (monthly) $${getWarrantyFee()}`
     : ''
   }
@@ -575,13 +582,18 @@ const getCreditsApplied = () => {
     </div>
   )}
   
-  {request?.listing?.powerType === 'Warranty' && (
+  {request?.listing?.warranty && (
   <div className="flex justify-between text-xl text-gray-900 bg-green-50 -mx-4 px-4 py-2 rounded-lg">
     <div className="flex items-center space-x-2">
       <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
       </svg>
-      <span className="font-semibold">Warranty Protection</span>
+      <span className="font-semibold">
+  Warranty Protection
+  {request?.listing?.warrantyPeriod && (
+    <span className="text-sm font-normal ml-1">({request.listing.warrantyPeriod})</span>
+  )}
+</span>
     </div>
     <span>${getWarrantyFee()}/mo</span>
   </div>
@@ -767,6 +779,21 @@ const getCreditsApplied = () => {
 )}
 
    
+<label className="flex items-start space-x-2 cursor-pointer mb-4">
+        <input
+          type="checkbox"
+          checked={paymentTos}
+          onChange={(e) => setPaymentTos(e.target.checked)}
+          className="w-4 h-4 mt-1 text-[#004d40] rounded"
+        />
+        <span className="text-sm text-gray-600">
+          I agree to the{' '}
+          <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-[#004d40] hover:underline">
+            Terms of Service
+          </a>
+        </span>
+      </label>
+
       <button 
   onClick={handlePayment}
   disabled={processing || !stripe}
@@ -832,13 +859,18 @@ if (orderConfirmed) {
       <span>${getDeliveryFee()}</span>
     </div>
   )}
-  {request?.listing?.powerType === 'Warranty' && (
+  {request?.listing?.warranty && (
   <div className="flex justify-between text-xl text-gray-900 bg-green-50 -mx-4 px-4 py-2 rounded-lg">
     <div className="flex items-center space-x-2">
       <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
       </svg>
-      <span className="font-semibold">Warranty Protection</span>
+      <span className="font-semibold">
+  Warranty Protection
+  {request?.listing?.warrantyPeriod && (
+    <span className="text-sm font-normal ml-1">({request.listing.warrantyPeriod})</span>
+  )}
+</span>
     </div>
     <span>${getWarrantyFee()}/mo</span>
   </div>
@@ -996,7 +1028,7 @@ if (orderConfirmed) {
     <div className="flex-1">
       <h4 className="text-xl font-bold text-blue-900 mb-3">Delivery & Installation Options</h4>
       <div className="space-y-3 text-blue-800">
-      {request?.listing?.powerType === 'Warranty' && (
+      {request?.listing?.warranty && (
   <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-3">
     <div className="flex items-center space-x-2">
       <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1201,7 +1233,7 @@ if (orderConfirmed) {
     <span className="text-5xl font-bold text-gray-900">${request.listing?.pricing?.rentPrice}</span>
   </div>
   
-  {request?.listing?.powerType === 'Warranty' && (
+  {request?.listing?.warranty && (
     <div className="flex items-center justify-between mt-3 bg-green-50 border border-green-200 rounded-xl p-4">
       <div className="flex items-center space-x-2">
         <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1213,7 +1245,7 @@ if (orderConfirmed) {
     </div>
   )}
   
-  {request?.listing?.powerType === 'Warranty' && (
+  {request?.listing?.warranty && (
     <div className="mt-3 text-center">
       <p className="text-lg text-gray-600">
         Total Monthly: <span className="font-bold text-gray-900">${(parseFloat(request.listing?.pricing?.rentPrice) + getWarrantyFee()).toFixed(2)}/mo</span>

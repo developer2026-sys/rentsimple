@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 
 import {BASE_URL} from '../baseUrl'
+import { ToastContainer } from 'react-toastify';
 
 function ActiveRenterRentals() {
   const [activeRentals, setActiveRentals] = useState([]);
@@ -35,6 +36,10 @@ function ActiveRenterRentals() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedRental, setSelectedRental] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+const [rejectReason, setRejectReason] = useState('');
+const [selectedOrderId, setSelectedOrderId] = useState(null);
+const [processingReject, setProcessingReject] = useState(false);
 
   useEffect(() => {
     fetchActiveRentals();
@@ -74,6 +79,60 @@ function ActiveRenterRentals() {
       setRefreshing(false);
     }
   };
+
+
+  const handleRejectDelivery = (orderId) => {
+    setSelectedOrderId(orderId);
+    setShowRejectModal(true);
+  };
+  
+  const confirmRejectDelivery = async () => {
+    if (!rejectReason) {
+      alert('Please select a reason for rejection');
+      return;
+    }
+    try {
+      setProcessingReject(true);
+      const token = localStorage.getItem('token');
+      await fetch(`${BASE_URL}/rejectDeliveryAndInstallation`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ orderId: selectedOrderId, reason: rejectReason })
+      });
+      setShowRejectModal(false);
+      setRejectReason('');
+      setSelectedOrderId(null);
+      fetchActiveRentals();
+    } catch (err) {
+      console.error('Error rejecting delivery:', err);
+    } finally {
+      setProcessingReject(false);
+    }
+  };
+  
+  const handleApproveDelivery = async (orderId) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      await fetch(`${BASE_URL}/releasePaymentToVendor`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ orderId })
+      });
+      fetchActiveRentals();
+    } catch (err) {
+      console.error('Error approving delivery:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const handleStatusUpdate = async (rentalId, newStatus) => {
     try {
@@ -176,6 +235,91 @@ function ActiveRenterRentals() {
       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${config.bg} ${config.text}`}>
         {config.label}
       </span>
+    );
+  };
+
+
+
+  const RejectDeliveryModal = () => {
+    const rejectReasons = [
+      'Budget Limitations', 'Scheduling Conflict', 'Unit Not a Good Fit',
+      'Condition Concerns', 'Change in Plans', 'Found a Better Alternative',
+      'Size Doesn\'t Match My Space', 'Features Don\'t Meet My Needs',
+      'Prefer Different Brand/Model', 'No Longer Need the Appliance',
+      'Delivery Window Doesn\'t Work', 'Installation Requirements Not Clear'
+    ];
+  
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">Cancel Rental Request</h2>
+              <button
+                onClick={() => { setShowRejectModal(false); setRejectReason(''); setSelectedOrderId(null); }}
+                className="text-gray-500 hover:text-gray-700"
+                disabled={processingReject}
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+  
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+              <p className="text-sm text-blue-700">
+                We understand plans change. Please let us know why you'd like to cancel this rental request.
+              </p>
+            </div>
+  
+            <p className="text-gray-600 mb-4 font-semibold">Please select a reason for cancellation:</p>
+  
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6 max-h-96 overflow-y-auto pr-2">
+              {rejectReasons.map((reason) => (
+                <label
+                  key={reason}
+                  className={`flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    rejectReason === reason ? 'border-blue-600 bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  } ${processingReject ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <input
+                    type="radio"
+                    name="rejectReason"
+                    value={reason}
+                    checked={rejectReason === reason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                    disabled={processingReject}
+                    className="mt-1 mr-3 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="text-sm text-gray-900 font-medium">{reason}</span>
+                </label>
+              ))}
+            </div>
+  
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setShowRejectModal(false); setRejectReason(''); setSelectedOrderId(null); }}
+                disabled={processingReject}
+                className="flex-1 py-3 px-4 rounded-lg font-semibold bg-gray-200 hover:bg-gray-300 text-gray-800 transition-colors disabled:opacity-50"
+              >
+                Keep Request
+              </button>
+              <button
+                onClick={confirmRejectDelivery}
+                disabled={!rejectReason || processingReject}
+                className="flex-1 py-3 px-4 rounded-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50 flex items-center justify-center"
+              >
+                {processingReject ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+                    Processing...
+                  </>
+                ) : 'Confirm Cancellation'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   };
 
@@ -434,17 +578,12 @@ function ActiveRenterRentals() {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={() => window.location.href = '/vendor/listings'}
+                onClick={() => window.location.href = '/renterdashboard'}
                 className="px-6 py-3 bg-teal-700 text-white rounded-lg hover:bg-teal-800 transition-colors font-medium"
               >
                 View Your Listings
               </button>
-              <button
-                onClick={() => window.location.href = '/vendor/analytics'}
-                className="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-              >
-                View Analytics
-              </button>
+          
             </div>
           </div>
         </div>
@@ -454,6 +593,8 @@ function ActiveRenterRentals() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <ToastContainer containerId="activeRenterRentals" />
+      {showRejectModal && <RejectDeliveryModal />}
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -606,6 +747,23 @@ function ActiveRenterRentals() {
                       <div className="flex flex-wrap gap-2">
                         {getStatusBadge(rental.status)}
                         {getTransferStatusBadge(rental.transferStatus)}
+                        <button
+  onClick={() => handleApproveDelivery(rental._id)}
+  disabled={loading || processingReject}
+  className="flex items-center space-x-2 px-4 py-2 bg-[#024a47] hover:bg-[#035d59] text-white rounded-lg transition-colors font-semibold text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  <CheckCircle className="w-4 h-4" />
+  <span>Approve</span>
+</button>
+
+<button
+  onClick={() => handleRejectDelivery(rental._id)}
+  disabled={loading || processingReject}
+  className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-semibold text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  <XCircle className="w-4 h-4" />
+  <span>Reject</span>
+</button>
                       </div>
                     </div>
                   </div>

@@ -1,7 +1,3 @@
-// export const BASE_URL="http://localhost:5000"
-// export const BASE_URL="https://rentsimple.org"
+export const BASE_URL="https://rentsimpledeals.dev/api"
 
-// export const BASE_URL="https://backendrentsimple.vercel.app"
-
-
-export const BASE_URL="https://finalrentsimplebackend.vercel.app"
+export const STRIPE_PUBLISH_KEY = "pk_test_51SRynCPBwgTANTk6OM3ADMEkOYuyTGcfBfz92xAXVsLmm8O6tH7dCVgcwhG4rmi5OH3URGSa6faVFD2WYbI7E8oA00drLGc9l6"

@@ -71,6 +71,34 @@ function VendorDashboard() {
     }
   };
 
+
+  const handleCompletePayment = async (requestId) => {
+    try {
+      const token = localStorage.getItem('vendorToken');
+  
+      const response = await axios.post(
+        `${BASE_URL}/approvePaymentVendor`,
+        { requestId },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+  
+      if (response.data.success) {
+        toast.success('Payment released successfully! Funds will be transferred to your account.', { containerId: "vendorDashboard" });
+        
+        
+        fetchDashboardData();
+      }
+    } catch (err) {
+      console.error('Error releasing payment:', err);
+      toast.error(err.response?.data?.error || 'Failed to release payment', { containerId: "vendorDashboard" });
+    }
+  };
+
+
   const updateVendor = async () => {
     try {
       let response = await axios.put(`${BASE_URL}/updateVendorProfile`, { sucessPopup: true }, {
@@ -109,7 +137,7 @@ function VendorDashboard() {
         setStripeLoading(false);
         setShowStripePopup(false);
         toast.success('Your Stripe account is already connected!', { containerId: "vendorDashboard" });
-        fetchDashboardData(); // Refresh to update status
+        fetchDashboardData(); 
         return;
       }
 
@@ -171,7 +199,7 @@ function VendorDashboard() {
           </div>
           <button
             onClick={fetchDashboardData}
-            className="mt-4 bg-[#024a47] text-white px-4 py-2 rounded hover:bg-[#035d59]"
+            className="mt-4 cursor-pointer bg-[#024a47] text-white px-4 py-2 rounded hover:bg-[#035d59]"
           >
             Retry
           </button>
@@ -194,13 +222,10 @@ function VendorDashboard() {
       color: 'bg-green-500'
     },
     {
-      label: 'Engagements',
-      value: (
-        (dashboardData?.stats?.engagement?.likes || 0) +
-        (dashboardData?.stats?.engagement?.inquiries || 0)
-      ).toLocaleString(),
-      icon: MessageSquare,
-      color: 'bg-purple-500'
+      label: 'Delivered Orders',
+      value: dashboardData?.deliveredRequests?.length || 0,
+      icon: Package,
+      color: 'bg-emerald-500'
     },
     {
       label: 'Revenue',
@@ -209,6 +234,7 @@ function VendorDashboard() {
       color: 'bg-yellow-500'
     }
   ];
+
 
   const recentListings = dashboardData?.recentListings?.map(listing => {
 
@@ -311,7 +337,7 @@ function VendorDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <button
               onClick={() => handleNavigation('/listening')}
-              className="bg-[#024a47] hover:bg-[#035d59] text-white rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md"
+              className="bg-[#024a47] cursor-pointer hover:bg-[#035d59] text-white rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md"
             >
               <Plus className="w-8 h-8" />
               <div className="text-left">
@@ -322,7 +348,7 @@ function VendorDashboard() {
 
             <button
               onClick={() => handleNavigation('/boost')}
-              className="bg-white hover:bg-gray-50 text-[#024a47] border-2 border-[#024a47] rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md"
+              className="bg-white cursor-pointer hover:bg-gray-50 text-[#024a47] border-2 border-[#024a47] rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md"
             >
               <TrendingUp className="w-8 h-8" />
               <div className="text-left">
@@ -333,7 +359,7 @@ function VendorDashboard() {
 
             <button
               onClick={() => handleNavigation('/requestlist')}
-              className="relative bg-[#024a47] hover:bg-[#035d59] text-white rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md"
+              className="relative cursor-pointer bg-[#024a47] hover:bg-[#035d59] text-white rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md"
             >
               <House className="w-8 h-8" />
               <div className="text-left">
@@ -352,7 +378,7 @@ function VendorDashboard() {
 
             <button
               onClick={() => handleNavigation('/chat')}
-              className="bg-white hover:bg-gray-50 text-[#024a47] border-2 border-[#024a47] rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md relative"
+              className="bg-white cursor-pointer hover:bg-gray-50 text-[#024a47] border-2 border-[#024a47] rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md relative"
             >
               <MessageCircle className="w-8 h-8" />
               <div className="text-left">
@@ -366,7 +392,7 @@ function VendorDashboard() {
 
             <button
               onClick={() => handleNavigation('/community')}
-              className="bg-white hover:bg-gray-50 text-[#024a47] border-2 border-[#024a47] rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md"
+              className="bg-white cursor-pointer hover:bg-gray-50 text-[#024a47] border-2 border-[#024a47] rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md"
             >
               <Users className="w-8 h-8" />
               <div className="text-left">
@@ -379,7 +405,7 @@ function VendorDashboard() {
 
             <button
               onClick={() => handleNavigation('/feed')}
-              className="bg-white hover:bg-gray-50 text-[#024a47] border-2 border-[#024a47] rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md"
+              className="bg-white cursor-pointer hover:bg-gray-50 text-[#024a47] border-2 border-[#024a47] rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md"
             >
               <Newspaper className="w-8 h-8" />
               <div className="text-left">
@@ -390,7 +416,7 @@ function VendorDashboard() {
 
             <button
               onClick={() => handleNavigation('/vendorprofile')}
-              className="bg-white hover:bg-gray-50 text-[#024a47] border-2 border-[#024a47] rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md"
+              className="bg-white cursor-pointer hover:bg-gray-50 text-[#024a47] border-2 border-[#024a47] rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md"
             >
               <User className="w-8 h-8" />
               <div className="text-left">
@@ -401,7 +427,7 @@ function VendorDashboard() {
 
             <button
               onClick={() => handleNavigation('/activerentals')}
-              className="bg-white hover:bg-gray-50 text-[#024a47] border-2 border-[#024a47] rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md"
+              className="bg-white cursor-pointer hover:bg-gray-50 text-[#024a47] border-2 border-[#024a47] rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md"
             >
               <DollarSignIcon className="w-8 h-8" />
               <div className="text-left">
@@ -416,7 +442,7 @@ function VendorDashboard() {
               <h2 className="text-2xl font-bold text-[#024a47]">Recent Listings</h2>
               <button
                 onClick={() => handleNavigation('/mylistenings')}
-                className="text-[#024a47] hover:underline font-semibold"
+                className="text-[#024a47] cursor-pointer hover:underline font-semibold"
               >
                 View All
               </button>
@@ -445,7 +471,7 @@ function VendorDashboard() {
                       </div>
                     </Link>
 
-                    {listing.status.toLowerCase() === 'sold' && (
+                    {listing.status.toLowerCase() === 'sold' && listing.deliveryType && (
                       <div className="flex-1 mx-4 space-y-3">
                         <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4">
                           <div className="flex items-start space-x-3">
@@ -478,7 +504,7 @@ function VendorDashboard() {
                           </div>
                         </div>
 
-                        {/* Renter Contact Info */}
+                      
                         {listing.renterMobile && (
                           <div className="bg-white border-2 border-[#024a47] rounded-lg p-4">
                             <div className="flex items-center justify-between">
@@ -530,14 +556,14 @@ function VendorDashboard() {
 
                       </span>
 
-                      {/* Renew Listing Button - shown only for Rented/Unavailable listings */}
+                 
                       {(listing.status.toLowerCase() === 'sold' || listing.status.toLowerCase() === 'inactive') && (
                         <button
                           onClick={(e) => {
                             e.preventDefault();
                             handleRenewListing(listing.id);
                           }}
-                          className="flex items-center space-x-2 px-4 py-2 bg-[#024a47] hover:bg-[#035d59] text-white rounded-lg transition-colors font-semibold text-sm whitespace-nowrap"
+                          className="flex cursor-pointer items-center space-x-2 px-4 py-2 bg-[#024a47] hover:bg-[#035d59] text-white rounded-lg transition-colors font-semibold text-sm whitespace-nowrap"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -550,27 +576,125 @@ function VendorDashboard() {
                 ))}
               </div>
             )}
+
+
+
+
+
           </div>
+          {dashboardData?.deliveredRequests && dashboardData.deliveredRequests.length > 0 && (
+    <div className="bg-white rounded-lg shadow-md p-6 mb-20 lg:mb-6">
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-2xl font-bold text-[#024a47]">Delivered Orders</h2>
+      
+    </div>
+
+    <div className="space-y-4">
+      {dashboardData.deliveredRequests.map((request) => {
+        const listing = dashboardData.recentListings?.find(
+          l => l._id === request.listing?._id || l._id === request.listing
+        ) || request.listing;
+
+        return (
+          <div key={request._id}>
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <Link to={`/listings/edit/${listing?._id}`} className="flex items-center space-x-4 flex-1">
+                <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                  {listing?.images?.[0]?.url ? (
+                    <img src={listing.images[0].url} alt={listing?.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <Package className="w-6 h-6 text-gray-600" />
+                  )}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-[#024a47]">{listing?.title || 'Listing'}</h3>
+                  <p className="text-sm text-gray-600">
+                    Rented by {request.user?.name || 'Customer'} • {request.deliveryType === 'pickup' ? 'Pickup' : 'Delivery'}
+                  </p>
+                </div>
+              </Link>
+
+              <div className="flex items-center space-x-3">
+                <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-semibold">
+                  Sold
+                </span>
+                
+                {request.user && (
+                  <Link
+                    to={`/chat?user=${request.user._id}`}
+                    className="flex items-center space-x-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors text-sm font-semibold"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Chat</span>
+                  </Link>
+                )}
+
+                <button
+                 onClick={(e) => {
+                  e.preventDefault();
+                  handleCompletePayment(request._id);
+                }}
+                  className="flex cursor-pointer items-center space-x-2 px-4 py-2 bg-[#024a47] hover:bg-[#035d59] text-white rounded-lg transition-colors font-semibold text-sm whitespace-nowrap"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Complete Payment</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Action Required Message - Below the main row */}
+            <div className="mt-2 ml-16 mr-4">
+              <div className="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-3">
+                <div className="flex items-start space-x-2">
+                  <div className="flex-shrink-0">
+                    <svg className="w-4 h-4 text-blue-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-blue-800 leading-relaxed">
+                      <span className="font-bold">⏰ Action Required:</span> Please confirm pickup or delivery to allow RentSimple to complete the transaction and release funds to your account.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+)}
+
+          </div>
+
+
+  
+
+
+<div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 lg:hidden">
 
           <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 lg:hidden">
             <div className="flex justify-around py-3">
               <button
                 onClick={() => handleNavigation('/dashboard')}
-                className="flex flex-col items-center text-[#024a47]"
+                className="flex cursor-pointer flex-col items-center text-[#024a47]"
               >
                 <Home className="w-6 h-6" />
-                <span className="text-xs mt-1">Dashboard</span>
+                <span className="text-xs mt-1">Vendor Dashboard</span>
               </button>
               <button
                 onClick={() => handleNavigation('/feed')}
-                className="flex flex-col items-center text-gray-600"
+                className="flex cursor-pointer flex-col items-center text-gray-600"
               >
                 <BarChart3 className="w-6 h-6" />
                 <span className="text-xs mt-1">Feed</span>
               </button>
               <button
                 onClick={() => handleNavigation('/chat')}
-                className="flex flex-col items-center text-gray-600 relative"
+                className="flex cursor-pointer flex-col items-center text-gray-600 relative"
               >
                 <MessageCircle className="w-6 h-6" />
                 <span className="text-xs mt-1">Chat</span>
@@ -582,7 +706,7 @@ function VendorDashboard() {
               </button>
               <button
                 onClick={() => handleNavigation('/subscription')}
-                className="flex flex-col items-center text-gray-600"
+                className="flex cursor-pointer flex-col items-center text-gray-600"
               >
                 <CreditCard className="w-6 h-6" />
                 <span className="text-xs mt-1">Subscribe</span>
@@ -594,16 +718,16 @@ function VendorDashboard() {
         {showStripePopup && (
           <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
             <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
-              {/* Loading Overlay */}
+             
               {stripeLoading && (
                 <div className="absolute inset-0 bg-white bg-opacity-95 rounded-lg flex items-center justify-center z-10">
                   <div className="text-center">
                     <div className="relative inline-flex items-center justify-center mb-4">
-                      {/* Outer rotating circle */}
+               
                       <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200"></div>
-                      {/* Inner rotating circle */}
+                  
                       <div className="absolute animate-spin rounded-full h-16 w-16 border-4 border-[#024a47] border-t-transparent"></div>
-                      {/* Center icon */}
+                    
                       <div className="absolute">
                         <CreditCard className="w-6 h-6 text-[#024a47]" />
                       </div>
@@ -627,7 +751,7 @@ function VendorDashboard() {
                 <button
                   onClick={handleStripeOnboarding}
                   disabled={stripeLoading}
-                  className="flex-1 bg-[#024a47] hover:bg-[#035d59] text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  className="flex-1 cursor-pointer bg-[#024a47] hover:bg-[#035d59] text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                   {stripeLoading ? (
                     <>
@@ -641,7 +765,7 @@ function VendorDashboard() {
                 <button
                   onClick={() => setShowStripePopup(false)}
                   disabled={stripeLoading}
-                  className="px-4 py-3 text-gray-600 hover:text-gray-800 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 cursor-pointer py-3 text-gray-600 hover:text-gray-800 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Later
                 </button>
@@ -670,13 +794,13 @@ function VendorDashboard() {
               <div className="flex space-x-3">
                 <button
                   onClick={updateVendor}
-                  className="flex-1 bg-[#024a47] hover:bg-[#035d59] text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                  className="flex-1 cursor-pointer bg-[#024a47] hover:bg-[#035d59] text-white font-semibold py-3 px-6 rounded-lg transition-colors"
                 >
                   Start Listing Appliances
                 </button>
                 <button
                   onClick={updateVendor}
-                  className="px-6 py-3 text-gray-600 hover:text-gray-800 font-semibold border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-6 cursor-pointer py-3 text-gray-600 hover:text-gray-800 font-semibold border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Close
                 </button>

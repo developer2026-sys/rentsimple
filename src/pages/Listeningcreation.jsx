@@ -18,30 +18,22 @@ const StripeOnboardingPopup = ({ isOpen, onClose, onboardingUrl, accountId }) =>
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-
       <div
         className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
         onClick={onClose}
       />
-
-
       <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 animate-in fade-in zoom-in duration-300">
-
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
         >
           <X className="w-5 h-5" />
         </button>
-
-
         <div className="flex justify-center mb-6">
           <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
             <CreditCard className="w-8 h-8 text-blue-600" />
           </div>
         </div>
-
-
         <div className="text-center mb-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-3">
             Complete Your Stripe Setup First
@@ -49,7 +41,6 @@ const StripeOnboardingPopup = ({ isOpen, onClose, onboardingUrl, accountId }) =>
           <p className="text-gray-600 mb-4">
             Before creating listings, you need to complete your Stripe account setup to receive payments. This will only take a few minutes.
           </p>
-
           <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-4">
             <div className="flex items-start gap-3 text-left">
               <Check className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -63,15 +54,12 @@ const StripeOnboardingPopup = ({ isOpen, onClose, onboardingUrl, accountId }) =>
               </div>
             </div>
           </div>
-
           {accountId && (
             <p className="text-xs text-gray-500 mb-4">
               Account ID: {accountId}
             </p>
           )}
         </div>
-
-
         <div className="flex flex-col gap-3">
           <button
             onClick={handleContinue}
@@ -80,7 +68,6 @@ const StripeOnboardingPopup = ({ isOpen, onClose, onboardingUrl, accountId }) =>
             Continue to Stripe
             <ExternalLink className="w-4 h-4" />
           </button>
-
           <button
             onClick={onClose}
             className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-lg transition-colors cursor-pointer"
@@ -88,8 +75,6 @@ const StripeOnboardingPopup = ({ isOpen, onClose, onboardingUrl, accountId }) =>
             I'll do this later
           </button>
         </div>
-
-
         <p className="text-xs text-gray-500 text-center mt-6">
           🔒 Secured by Stripe. Your information is safe and encrypted.
         </p>
@@ -129,14 +114,12 @@ function ListingCreationFlow() {
     listAsActive: true,
     warranty: false,
     warrantyPrice: '',
-    warrantyPeriod: '',  
+    warrantyPeriod: '3 months',
     publishToFeed: false,
     pickUpAddress: '',
     powerType: '',
     deliveryPrice: '',
-    warrantyPrice: '',
     installationPrice: '',
-    warranty: false,
     installation: false,
     location: {
       city: '',
@@ -492,7 +475,7 @@ function ListingCreationFlow() {
         toast.error('Please select the condition', { containerId: 'listingPage' });
         return false;
       }
-      if (!formData.powerType) {
+      if (showFormSections.showPower && !formData.powerType) {
         toast.error('Please select the power type', { containerId: 'listingPage' });
         return false;
       }
@@ -500,6 +483,11 @@ function ListingCreationFlow() {
         toast.error('Please enter a valid warranty price', { containerId: 'listingPage' });
         return false;
       }
+      if (formData.warranty && !formData.warrantyPeriod) {
+        toast.error('Please select a warranty period', { containerId: 'listingPage' });
+        return false;
+      }
+      
       if (!formData.pickUpAddress.trim()) {
         toast.error('Please enter the pickup address', { containerId: 'listingPage' });
         return false;
@@ -580,7 +568,7 @@ function ListingCreationFlow() {
         rentPrice: parseFloat(formData.rentPrice),
         buyPrice: parseFloat(formData.buyPrice),
         deliveryPrice: parseFloat(formData.deliveryPrice),
-        installationPrice: parseFloat(formData.installationPrice),
+        // installationPrice: parseFloat(formData.installationPrice),
         ...(formData.warranty && { warrantyPrice: parseFloat(formData.warrantyPrice) }),
         description: formData.description,
         images,
@@ -590,6 +578,7 @@ function ListingCreationFlow() {
         location: formData.location,
         dimensions: formData.dimensions,
         installation: formData.installation,
+        warrantyPeriod: formData.warrantyPeriod,
         ...(formData.installation && { installationPrice: parseFloat(formData.installationPrice) }),
       };
 
@@ -696,47 +685,76 @@ function ListingCreationFlow() {
         </select>
       </div>
     </div>);
-  const renderWarranty = () => (
-    <>
-      <div> {/* warranty */}
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Warranty
-        </label>
-        <div className="flex items-center space-x-3">
-          <button
-            type="button"
-            onClick={() => setFormData({ ...formData, warranty: !formData.warranty })}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all ${formData.warranty
-              ? 'bg-[#024a47] text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-          >
-            {formData.warranty ? 'Yes' : 'No'}
-          </button>
-        </div>
+const renderWarranty = () => (
+  <>
+    <div> 
+      <label className="block text-sm font-semibold text-gray-700 mb-2">
+        Warranty
+      </label>
+      <div className="flex items-center space-x-3">
+        <button
+          type="button"
+          onClick={() => setFormData({ ...formData, warranty: true })}
+          className={`px-6 py-3 rounded-lg font-semibold transition-all ${formData.warranty
+            ? 'bg-[#024a47] text-white'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+        >
+          Yes
+        </button>
+        <button
+          type="button"
+          onClick={() => setFormData({ ...formData, warranty: false })}
+          className={`px-6 py-3 rounded-lg font-semibold transition-all ${!formData.warranty
+            ? 'bg-[#024a47] text-white'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+        >
+          No
+        </button>
       </div>
-      {formData.warranty && (
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Warranty Price *
-          </label>
-          <div className="relative">
-            <span className="absolute left-4 top-3 text-gray-600">$</span>
-            <input
-              type="number"
-              name="warrantyPrice"
-              value={formData.warrantyPrice}
+    </div>
+    {formData.warranty && (
+      <>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Warranty Price *
+            </label>
+            <div className="relative">
+              <span className="absolute left-4 top-3 text-gray-600">$</span>
+              <input
+                type="number"
+                name="warrantyPrice"
+                value={formData.warrantyPrice}
+                onChange={handleInputChange}
+                placeholder="49.99"
+                step="0.01"
+                min="0"
+                className="w-full pl-8 pr-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Warranty Period *
+            </label>
+            <select
+              name="warrantyPeriod"
+              value={formData.warrantyPeriod}
               onChange={handleInputChange}
-              placeholder="49.99"
-              step="0.01"
-              min="0"
-              className="w-full pl-8 pr-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
-            />
+              className="w-full px-4 py-3 bg-gray-50 border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#024a47]"
+            >
+              <option value="3 months">3 Months</option>
+              <option value="6 months">6 Months</option>
+              <option value="12 months">12 Months</option>
+            </select>
           </div>
         </div>
-      )}
-    </>
-  );
+      </>
+    )}
+  </>
+);
 
   return (
     <>
@@ -1247,13 +1265,21 @@ function ListingCreationFlow() {
                       </span>
                     </div>
                     {formData.warranty && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Warranty Price:</span>
-                        <span className="font-semibold">
-                          ${formData.warrantyPrice}
-                        </span>
-                      </div>
-                    )}
+  <>
+    <div className="flex justify-between">
+      <span className="text-gray-600">Warranty Price:</span>
+      <span className="font-semibold">
+        ${formData.warrantyPrice}
+      </span>
+    </div>
+    <div className="flex justify-between">
+      <span className="text-gray-600">Warranty Period:</span>
+      <span className="font-semibold">
+        {formData.warrantyPeriod}
+      </span>
+    </div>
+  </>
+)}
                   </div >
                 </div >
               </div >

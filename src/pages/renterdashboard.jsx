@@ -16,6 +16,7 @@ function RenterDashboard() {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [ticketStatus, setTicketStatus] = useState(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState(null);
@@ -23,8 +24,40 @@ function RenterDashboard() {
   const [newMessagesLength, setNewMessagesLength] = useState(0)
   const menuRef = useRef();
   const [open, setOpen] = useState(false)
+  const [supportTickets, setSupportTickets] = useState([]);
+const [ticketsLoading, setTicketsLoading] = useState(false);
+const [openTicketId, setOpenTicketId] = useState(null);
+
   useEffect(() => {
     fetchDashboardData();
+  }, []);
+
+
+
+  useEffect(() => {
+    const fetchSupportTickets = async () => {
+      try {
+        setTicketsLoading(true);
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`${BASE_URL}/getUserTickets`, {
+          params: { userType: 'user' },
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.data.ticket) {
+          setSupportTickets(
+            Array.isArray(response.data.ticket)
+              ? response.data.ticket
+              : [response.data.ticket]
+          );
+        }
+      } catch (err) {
+        console.error('Error fetching support tickets:', err);
+      } finally {
+        setTicketsLoading(false);
+      }
+    };
+  
+    fetchSupportTickets();
   }, []);
 
   const fetchDashboardData = async () => {
@@ -81,7 +114,7 @@ function RenterDashboard() {
 
       setNewMessagesLength(response.data.messagesLength)
     } catch (e) {
-
+      console.error(e);
     }
   }
 
@@ -218,7 +251,7 @@ function RenterDashboard() {
       color: 'bg-blue-500'
     },
     {
-      label: 'Pending Approvals',
+      label: 'Pending Delivery Approvals',
       value: pendingApprovalsCount, // Use calculated count from array
       icon: Clock,
       color: 'bg-yellow-500'
@@ -503,261 +536,10 @@ function RenterDashboard() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-<<<<<<< HEAD
-      
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <button
-            onClick={() => handleNavigation('/appliance')}
-            className="bg-[#024a47] hover:bg-[#035d59] text-white rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md"
-          >
-            <Package className="w-8 h-8" />
-            <div className="text-left">
-              <h3 className="font-semibold text-lg">Browse Appliances</h3>
-              <p className="text-sm opacity-90">Find rentals</p>
-            </div>
-          </button>
-
-       
-
-          <button
-            onClick={() => handleNavigation('/userchat')}
-            className="bg-white hover:bg-gray-50 text-[#024a47] border-2 border-[#024a47] rounded-lg p-6 flex items-center space-x-4 transition-all shadow-md relative"
-          >
-            <MessageCircle className="w-8 h-8" />
-            <div className="text-left">
-              <h3 className="font-semibold text-lg">Messages</h3>
-              <p className="text-sm opacity-75">Chat with vendors</p>
-            </div>
-            {dashboardData?.unreadMessages > 0 && (
-              <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">
-                {dashboardData.unreadMessages}
-              </span>
-            )}
-          </button>
-        </div>
-
-     
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-[#024a47]">Active Rentals</h2>
-           
-          </div>
-          
-          {activeRentals.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <Package className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p>No active rentals. Browse appliances to get started!</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {activeRentals.map((rental) => (
-                <div onClick={()=>{
-                  navigate('/activeRenterRentals')
-                }} key={rental.id} className="flex cursor-pointer items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
-                      {rental.image ? (
-                        <img src={rental.image} alt={rental.applianceName} className="w-full h-full object-cover" />
-                      ) : (
-                        <Package className="w-6 h-6 text-gray-600" />
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-[#024a47]">{rental.applianceName}</h3>
-                      <p className="text-sm text-gray-600">{rental.vendorName}</p>
-                      <p className="text-xs text-gray-500">
-                      ${rental.monthlyRate}/month • 
-{
-  rental.startDate
-    ? new Date(rental.startDate).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-    : 'Start date not set'
-}
- - 
-{
-  rental.startDate
-    ? new Date(
-        new Date(rental.startDate).setMonth(
-          new Date(rental.startDate).getMonth() + 5
-        )
-      ).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-    : 'End date not set'
-}
-
-
-</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                  <span className={`px-3 py-1 rounded-full text-sm font-semibold capitalize ${
-  rental.status === 'active' || rental.status === 'delivered' ? 'bg-green-100 text-green-800' :
-  rental.status === 'pending_confirmation' || rental.status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
-  rental.status === 'in_transit' || rental.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-  rental.status === 'cancelled' || rental.status === 'refunded' ? 'bg-red-100 text-red-800' :
-  'bg-gray-100 text-gray-800'
-}`}>
-  {rental.status?.replace('_', ' ') || 'Unknown'}
-</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-
-<div className="bg-white rounded-lg shadow-md p-6 mb-6">
-  <div className="flex justify-between items-center mb-6">
-    <h2 className="text-2xl font-bold text-[#024a47]">Completed Orders</h2>
-  </div>
-  
-  {completedOrders.length === 0 ? (
-    <div className="text-center py-8 text-gray-500">
-      <CheckCircle className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-      <p>No completed orders yet</p>
-    </div>
-  ) : (
-    <div className="space-y-4">
-      {completedOrders.map((order) => (
-        <div onClick={()=>{
-          navigate('/completedRenterRentals')
-        }} key={order.id} className="flex cursor-pointer flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors gap-4">
-          <div className="flex items-center space-x-4 flex-1">
-            <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-              {order.image ? (
-                <img src={order.image} alt={order.applianceName} className="w-full h-full object-cover" />
-              ) : (
-                <Package className="w-6 h-6 text-gray-600" />
-              )}
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-[#024a47]">{order.applianceName}</h3>
-              <p className="text-sm text-gray-600">{order.vendorName}</p>
-              <p className="text-xs text-gray-500">
-                Order #{order.orderNumber} • ${order.monthlyRate}/month
-              </p>
-              <p className="text-xs text-gray-500">
-                Completed: {new Date(order.completedDate).toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-          <Link 
-              to={`/userchat?vendor=${order?.vendor?._id}`}
-              className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-full text-sm font-semibold transition-colors flex items-center justify-center space-x-1 border border-gray-300"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>Chat with Vendor</span>
-            </Link>
-          <div className="flex items-center space-x-3 w-full sm:w-auto">
-            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold capitalize flex items-center space-x-1">
-              <CheckCircle className="w-4 h-4" />
-              <span>Confirmed & Delivered</span>
-            </span>
-          </div>
-        </div>
-      ))}
-    </div>
-  )}
-</div>
-       
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-[#024a47]">
-  Awaiting Delivery Approval
-</h2>
-
-          </div>
-          
-          {pendingApprovals.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <Clock className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p>No pending approvals</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-            {pendingApprovals.map((request) => (
-              <div key={request.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors gap-4">
-                <div className="flex items-center space-x-4 flex-1">
-                  <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
-                    {request.image ? (
-                      <img src={request.image} alt={request.applianceName} className="w-full h-full object-cover" />
-                    ) : (
-                      <Package className="w-6 h-6 text-gray-600" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-[#024a47]">{request.applianceName}</h3>
-                    <p className="text-sm text-gray-600">{request.vendorName}</p>
-                    <p className="text-xs text-gray-500">
-  Requested: {new Date(request.requestedDate).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  })}
-</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3 w-full sm:w-auto">
-                  <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold capitalize">
-                    {request.status}
-                  </span>
-                  <button
-                    onClick={() => handleApproveDelivery(request.id)}
-                    disabled={loading || processingReject}
-                    className="flex items-center space-x-2 px-4 py-2 bg-[#024a47] hover:bg-[#035d59] text-white rounded-lg transition-colors font-semibold text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Approve</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleRejectDelivery(request.id)}
-                    disabled={loading || processingReject}
-                    className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-semibold text-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <XCircle className="w-4 h-4" />
-                    <span>Reject</span>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-          )}
-        </div>
-
-      
-        <div className="bg-white rounded-lg shadow-md p-6 mb-20 lg:mb-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-[#024a47]">Recent Receipts</h2>
-         
-          </div>
-          
-          {recentReceipts.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <FileText className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-              <p>No receipts yet</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-            {recentReceipts.map((receipt) => (
-              <div key={receipt.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-[#024a47] rounded-lg flex items-center justify-center">
-                    <FileText className="w-6 h-6 text-white" />
-                  </div>
-=======
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {stats.map((stat, index) => (
               <div key={index} className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex items-center justify-between">
->>>>>>> 333301fbf79fae56700cefd08ceef71b79968b09
                   <div>
                     <p className="text-gray-600 text-sm mb-1">{stat.label}</p>
                     <p className="text-3xl font-bold text-[#024a47]">{stat.value}</p>
@@ -817,7 +599,8 @@ function RenterDashboard() {
             ) : (
               <div className="space-y-4">
                 {activeRentals.map((rental) => (
-                  <div key={rental.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <Link to='/activeRenterRentals'>
+                   <div key={rental.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                     <div className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
                         {rental.image ? (
@@ -870,6 +653,8 @@ function RenterDashboard() {
                       </span>
                     </div>
                   </div>
+                  </Link>
+                 
                 ))}
               </div>
             )}
@@ -889,6 +674,8 @@ function RenterDashboard() {
             ) : (
               <div className="space-y-4">
                 {completedOrders.map((order) => (
+                  
+                <Link to='/completedRenterRentals'>
                   <div key={order.id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors gap-4">
                     <div className="flex items-center space-x-4 flex-1">
                       <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -923,6 +710,7 @@ function RenterDashboard() {
                       </span>
                     </div>
                   </div>
+                </Link>
                 ))}
               </div>
             )}
@@ -1044,6 +832,68 @@ function RenterDashboard() {
             )}
           </div>
 
+{/* Support Tickets */}
+<div className="bg-white rounded-lg shadow-md p-6 mb-20 lg:mb-6">
+  <div className="flex justify-between items-center mb-6">
+    <h2 className="text-2xl font-bold text-[#024a47]">Support Tickets</h2>
+  </div>
+
+  {ticketsLoading ? (
+    <div className="flex justify-center py-8">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#024a47]"></div>
+    </div>
+  ) : supportTickets.length === 0 ? (
+    <div className="text-center py-8 text-gray-500">
+      <MessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-400" />
+      <p>No support tickets yet</p>
+    </div>
+  ) : (
+    <div className="space-y-4">
+      {supportTickets.map((ticket) => (
+    <div
+    key={ticket._id}
+    onClick={() => setOpenTicketId(ticket._id)}
+    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors gap-3 cursor-pointer"
+  >
+          <div className="flex items-center space-x-4 flex-1">
+            <div className="w-12 h-12 bg-[#024a47] rounded-lg flex items-center justify-center flex-shrink-0">
+              <MessageSquare className="w-6 h-6 text-white" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-[#024a47]">{ticket.subject || 'Support Request'}</h3>
+              <p className="text-xs text-gray-500">
+                Ticket ID: {ticket._id?.slice(-8).toUpperCase()}
+              </p>
+              <p className="text-xs text-gray-500">
+                Last updated: {new Date(ticket.lastMessageAt).toLocaleDateString('en-US', {
+                  year: 'numeric', month: 'short', day: 'numeric'
+                })}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-3">
+            <span className={`px-2 py-1 rounded-full text-xs font-semibold capitalize ${
+              ticket.priority === 'urgent' ? 'bg-red-100 text-red-800' :
+              ticket.priority === 'high'   ? 'bg-orange-100 text-orange-800' :
+              ticket.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+              'bg-gray-100 text-gray-700'
+            }`}>
+              {ticket.priority}
+            </span>
+            <span className={`px-3 py-1 rounded-full text-sm font-semibold capitalize ${
+              ticket.status === 'open'     ? 'bg-blue-100 text-blue-800' :
+              ticket.status === 'pending'  ? 'bg-yellow-100 text-yellow-800' :
+              ticket.status === 'resolved' ? 'bg-green-100 text-green-800' :
+              'bg-gray-100 text-gray-700'
+            }`}>
+              {ticket.status}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
 
           <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 lg:hidden">
             <div className="flex justify-around py-3">
@@ -1084,7 +934,7 @@ function RenterDashboard() {
           </div>
         </div>
         {showRejectModal && <RejectDeliveryModal />}
-        <SupportChatWidget />
+        <SupportChatWidget openTicketId={openTicketId} onClose={() => setOpenTicketId(null)} />
       </div>
     </>
   );

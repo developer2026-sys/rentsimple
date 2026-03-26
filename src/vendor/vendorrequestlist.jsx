@@ -627,9 +627,7 @@ export default function VendorRequestsListPage() {
         </label>
       </div>
     ))}
-    <div className="aspect-square rounded-2xl border-2 bg-gray-100 border-gray-300 flex items-center justify-center">
-      <div className="w-12 h-12 rounded-lg bg-gray-300"></div>
-    </div>
+   
   </div>
 </div>
             {/* Operational Test Section */}
