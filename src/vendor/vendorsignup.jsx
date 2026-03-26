@@ -19,8 +19,10 @@ function VendorSignup() {
     confirmPassword: '',
     businessName: '',
     image: null,
-    agreeToTerms: false
+    agreeToTerms: false,
+    agreeToVendorAgreement: false
   });
+
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -64,6 +66,12 @@ function VendorSignup() {
       return;
     }
 
+    
+    if (!formData.agreeToVendorAgreement) {
+      toast.error('Please agree to the Vendor Agreement', { containerId: 'signupPage' });
+      return;
+    }
+
     setLoading(true);
     try {
       const formDataToSend = new FormData();
@@ -72,6 +80,9 @@ function VendorSignup() {
       formDataToSend.append('mobile', formData.mobile);
       formDataToSend.append('password', formData.password);
       formDataToSend.append('businessName', formData.businessName);
+      formDataToSend.append('tos', formData.agreeToTerms);
+      formDataToSend.append('vendoragreement', formData.agreeToVendorAgreement);
+      
       if (formData.image) {
         formDataToSend.append('image', formData.image);
       }
@@ -263,20 +274,38 @@ function VendorSignup() {
                   onChange={handleInputChange}
                   className="w-4 h-4 mt-1 text-[#024a47] rounded"
                 />
+             <span className="text-sm text-gray-600">
+  I agree to the{' '}
+  <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-[#024a47] hover:underline">
+    Terms of Service
+  </a>{' '}
+  and{' '}
+  <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#024a47] hover:underline">
+    Privacy Policy
+  </a>
+</span>
+
+              </label>
+
+              <label className="flex items-start space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="agreeToVendorAgreement"
+                  checked={formData.agreeToVendorAgreement}
+                  onChange={handleInputChange}
+                  className="w-4 h-4 mt-1 text-[#024a47] rounded"
+                />
                 <span className="text-sm text-gray-600">
                   I agree to the{' '}
-                  <a href="#" className="text-[#024a47] hover:underline">
-                    Terms & Conditions
-                  </a>{' '}
-                  and{' '}
-                  <a href="#" className="text-[#024a47] hover:underline">
-                    Privacy Policy
+                  <a href="/vendor-agreement" target="_blank" rel="noopener noreferrer" className="text-[#024a47] hover:underline">
+                    Vendor Agreement
                   </a>
                 </span>
               </label>
 
               <button
                 onClick={handleSignup}
+                
                 disabled={loading}
                 className="w-full py-3 bg-[#024a47] text-white rounded-lg font-semibold hover:bg-[#035d59] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
               >

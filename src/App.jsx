@@ -25,7 +25,8 @@ export default function App() {
     email: '',
     mobile: '',
     password: '',
-    deliveryAddress: ''
+    deliveryAddress: '',
+    agreeToTerms: false
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -98,6 +99,10 @@ export default function App() {
           navigate('/appliance');
         }, 1500);
       } else {
+        if (!formData.agreeToTerms) {
+          toast.error('Please agree to the Terms of Service and Privacy Policy');
+          return;
+        }
         setIsSubmitting(true);
         let paymentMethodId = null;
 
@@ -149,9 +154,10 @@ export default function App() {
         console.log('Calling register API with paymentMethodId:', paymentMethodId);
         const response = await axios.post(`${BASE_URL}/register`, {
           ...formData,
+          tos: formData.agreeToTerms,
           ...(paymentMethodId && { paymentMethodId })
         });
-
+        
         console.log('Registration successful:', response.data);
 
         toast.success("Account created successfully!", { autoClose: 1500 });
@@ -399,6 +405,31 @@ export default function App() {
                       />
                     </div>
                   )} */}
+
+
+{activeTab === "signup" && (
+    <label className="flex items-start space-x-2 cursor-pointer">
+      <input
+        type="checkbox"
+        name="agreeToTerms"
+        checked={formData.agreeToTerms}
+        onChange={handleInputChange}
+        className="w-4 h-4 mt-1 text-[#024a47] rounded"
+      />
+      <span className="text-sm text-gray-600">
+        I agree to the{' '}
+        <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-[#024a47] hover:underline">
+          Terms of Service
+        </a>{' '}
+        and{' '}
+        <a href="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#024a47] hover:underline">
+          Privacy Policy
+        </a>
+      </span>
+    </label>
+  )}
+
+  
 
                   <div className="pt-3 sm:pt-4 pb-6 sm:pb-8">
                     <div className="flex flex-row items-center justify-between mb-4">

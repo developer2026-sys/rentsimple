@@ -74,6 +74,10 @@ import ActiveRenterRentals from './pages/ActiveRenterRental.jsx'
 import CompletedRenterRentals from './pages/CompletedRenterRent.jsx'
 import { STRIPE_PUBLISH_KEY } from './baseUrl.jsx';
 import VendorApproval from './adminpages/vendorapprove.jsx'
+import TermsOfService from './pages/termsofservice.jsx'
+import PrivacyPolicy from './pages/privacypolicy.jsx'
+import VendorAgreement from './pages/vendoragreement.jsx'
+import Footer from './components/footer.jsx'
 
 const stripePromise = loadStripe(STRIPE_PUBLISH_KEY);
 
@@ -83,7 +87,11 @@ createRoot(document.getElementById('root')).render(
       <SocketProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<App />} />
+         <Route element={<Footer/>}>
+         <Route path="/" element={<App />} />
+           <Route path='/terms-of-service' element={<TermsOfService/>}/>
+           <Route path='/privacy-policy' element={<PrivacyPolicy/>}/>
+          <Route path='/vendor-agreement' element={<VendorAgreement/>}/>
             <Route path="/appliance" element={<ApplianceRentalPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path='/renterDashboard' element={<RenterDashboard />} />
@@ -159,6 +167,7 @@ createRoot(document.getElementById('root')).render(
                 />
               </Route>
             </Route>
+         </Route>
           </Routes>
         </BrowserRouter>
       </SocketProvider>

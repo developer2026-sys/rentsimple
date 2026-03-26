@@ -43,7 +43,7 @@ const [useSavedCard, setUseSavedCard] = useState(true);
   const [receiptDownloaded, setReceiptDownloaded] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxStartIndex, setLightboxStartIndex] = useState(0);
-
+  const [paymentTos, setPaymentTos] = useState(false);
   useEffect(() => {
     const id = searchParams.get('id');
     if (id) {
@@ -129,6 +129,11 @@ const handlePayment = async () => {
     return;
   }
 
+  if (!paymentTos) {
+    toast.error('Please agree to the Terms of Service to continue.', { containerId: "renterConfirmationPage" });
+    return;
+  }
+
   setProcessing(true);
   try {
     const id = searchParams.get('id');
@@ -194,6 +199,7 @@ const handlePayment = async () => {
       { 
         id, 
         totalPrice: finalTotal,
+        paymenttos: paymentTos,
         creditsUsed: creditsApplied,
         totalBeforeCredits: totalBeforeCredits,
         paymentMethodId: paymentMethodId,
@@ -773,6 +779,21 @@ const getCreditsApplied = () => {
 )}
 
    
+<label className="flex items-start space-x-2 cursor-pointer mb-4">
+        <input
+          type="checkbox"
+          checked={paymentTos}
+          onChange={(e) => setPaymentTos(e.target.checked)}
+          className="w-4 h-4 mt-1 text-[#004d40] rounded"
+        />
+        <span className="text-sm text-gray-600">
+          I agree to the{' '}
+          <a href="/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-[#004d40] hover:underline">
+            Terms of Service
+          </a>
+        </span>
+      </label>
+
       <button 
   onClick={handlePayment}
   disabled={processing || !stripe}
