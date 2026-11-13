@@ -1,6 +1,6 @@
 {
     "redirects": [
-      { "source": "/", "destination": "/app", "permanent": false }
+      { "source": "/", "destination": "/", "permanent": false }
     ],
     "rewrites": [
       { "source": "/assets/(.*)", "destination": "/assets/$1" },
