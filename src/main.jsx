@@ -134,7 +134,7 @@ createRoot(document.getElementById('root')).render(
             {/* Admin Login Route (Public) */}
             <Route path="/adminlogin" element={<AdminLogin />} />
             <Route path="/adminreset" element={<AdminReset />} />
-            {/* <Route path='/adminregister' element={<AdminRegister/>}/> */}
+            <Route path='/adminregister' element={<AdminRegister/>}/>
             <Route path='/boostinginterface' element={<BoostingInterface />} />
             <Route path='/community' element={<CommunityPostPage />} />
             <Route path='/mylistenings' element={<VendorFeed />} />
